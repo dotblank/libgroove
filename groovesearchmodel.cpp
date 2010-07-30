@@ -150,14 +150,16 @@ void GrooveSearchModel::searchCompleted()
       return;
     }
 
-    // TODO: batch insert would make this a lot more efficient
+    QList<GrooveSong> newSongList;
     foreach (const QVariant &song, result["result"].toList()) {
         QVariantMap songData = song.toMap();
 
-        beginInsertRows(QModelIndex(), m_songs.count(), m_songs.count());
-        m_songs.append(GrooveSong(songData));
-        endInsertRows();
+        newSongList.append(GrooveSong(songData));
     }
+
+    beginInsertRows(QModelIndex(), 0, newSongList.count() - 1);
+    m_songs = newSongList;
+    endInsertRows();
 
     qDebug() << Q_FUNC_INFO << "Search found " << m_songs.count() << " songs";
 }
