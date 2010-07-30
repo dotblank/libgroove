@@ -104,6 +104,29 @@ QVariant GrooveSearchModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+QVariant GrooveSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (section < 0 || section > GROOVE_SEARCHMODELMAXCOLS)
+        return QVariant();
+
+    if (orientation == Qt::Vertical)
+        return QVariant();
+
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (section) {
+        case 0:
+            return tr("Title");
+        case 1:
+            return tr("Artist");
+        case 2:
+            return tr("Album");
+        }
+    }
+
+    return QVariant();
+}
+
 
 /****/
 
