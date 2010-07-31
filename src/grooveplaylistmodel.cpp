@@ -40,6 +40,7 @@ void GroovePlaylistModel::insert(int position, GrooveSong *song)
 void GroovePlaylistModel::removeAt(int songPosition)
 {
     beginRemoveRows(QModelIndex(), songPosition, songPosition);
+    m_songs.at(songPosition)->deref();
     m_songs.removeAt(songPosition);
     endRemoveRows();
 }
