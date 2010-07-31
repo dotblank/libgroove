@@ -29,6 +29,7 @@ class LIBGROOVESHARED_EXPORT GrooveSongData
 {
 public:
     QVariantMap m_data;
+    QAtomicInt m_refCount;
 };
 
 class LIBGROOVESHARED_EXPORT GrooveSong : public QObject
@@ -37,6 +38,9 @@ Q_OBJECT
 public:
     GrooveSong(const QVariantMap &data);
     ~GrooveSong();
+
+    void ref();
+    void deref();
 
     QString songID() const;
     int albumID() const;

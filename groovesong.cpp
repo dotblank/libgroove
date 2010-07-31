@@ -28,11 +28,27 @@ GrooveSong::GrooveSong(const QVariantMap &data)
 {
     d = new GrooveSongData;
     d->m_data = data;
+    d->m_refCount = QAtomicInt(0);
+
+    // initial refcount on creation
+    ref();
 }
 
 GrooveSong::~GrooveSong()
 {
     delete d;
+}
+
+void GrooveSong::ref()
+{
+    d->m_refCount.ref();
+}
+
+void GrooveSong::deref()
+{
+    if (!d->m_refCount.deref()) {
+        deleteLater();
+    }
 }
 
 QString GrooveSong::songID() const

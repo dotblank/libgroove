@@ -34,15 +34,22 @@ GrooveSearchModel::GrooveSearchModel(QObject *parent) :
 
 GrooveSearchModel::~GrooveSearchModel()
 {
-    qDeleteAll(m_songs);
+    clear();
+}
+
+void GrooveSearchModel::clear()
+{
+    foreach (GrooveSong *song, m_songs) {
+        song->deref();
+    }
+
     m_songs.clear();
 }
 
 void GrooveSearchModel::searchByArtist(const QString &artist)
 {
     emit beginResetModel();
-    qDeleteAll(m_songs);
-    m_songs.clear();
+    clear();
     emit endResetModel();
 
     searchByHelper("Artists", artist);
@@ -51,8 +58,7 @@ void GrooveSearchModel::searchByArtist(const QString &artist)
 void GrooveSearchModel::searchBySong(const QString &song)
 {
     emit beginResetModel();
-    qDeleteAll(m_songs);
-    m_songs.clear();
+    clear();
     emit endResetModel();
 
     searchByHelper("Songs", song);
@@ -61,8 +67,7 @@ void GrooveSearchModel::searchBySong(const QString &song)
 void GrooveSearchModel::searchByAlbum(const QString &album)
 {
     emit beginResetModel();
-    qDeleteAll(m_songs);
-    m_songs.clear();
+    clear();
     emit endResetModel();
 
     searchByHelper("Albums", album);
@@ -194,7 +199,7 @@ void GrooveSearchModel::searchCompleted()
         return;
 
     beginInsertRows(QModelIndex(), 0, newSongList.count() - 1);
-    qDeleteAll(m_songs);
+    clear();
     m_songs = newSongList;
     endInsertRows();
 

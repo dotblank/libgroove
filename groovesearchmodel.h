@@ -43,9 +43,14 @@ public:
     */
     GrooveSong *songByIndex(const QModelIndex &index);
 public slots:
-    void searchByArtist(const QString &artist);
+    void searchByArtist(const QString &artist); // XXX: should this really be here? causes problems due to different fields returned?
     void searchBySong(const QString &song);
-    void searchByAlbum(const QString &album);
+    void searchByAlbum(const QString &album); // XXX: should this really be here? causes problems due to different fields returned?
+
+    /*!
+        Clears this model of all songs, deleting songs which are not referred to in any other models.
+    */
+    void clear();
 
 private:
     /*!
