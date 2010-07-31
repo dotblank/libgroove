@@ -47,7 +47,7 @@ int GroovePlaylistModel::indexOf(GrooveSong *song, int from)
             return i;
     }
 
-    return 0;
+    return -1;
 }
 
 GrooveSong *GroovePlaylistModel::next()
