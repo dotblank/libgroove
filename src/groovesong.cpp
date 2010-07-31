@@ -46,9 +46,8 @@ void GrooveSong::ref()
 
 void GrooveSong::deref()
 {
-    if (!d->m_refCount.deref()) {
+    if (!d->m_refCount.deref())
         deleteLater();
-    }
 }
 
 QString GrooveSong::songID() const

@@ -107,9 +107,13 @@ int GrooveSongsModel::count()
 
 void GrooveSongsModel::clear()
 {
+    emit beginResetModel();
+
     // Decrement reference count on all our songs (this will automatically delete ones with no references left)
     foreach (GrooveSong *song, m_songs)
         song->deref();
 
     m_songs.clear();
+
+    emit endResetModel();
 }

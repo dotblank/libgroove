@@ -39,28 +39,16 @@ GrooveSearchModel::~GrooveSearchModel()
 
 void GrooveSearchModel::searchByArtist(const QString &artist)
 {
-    emit beginResetModel();
-    clear();
-    emit endResetModel();
-
     searchByHelper("Artists", artist);
 }
 
 void GrooveSearchModel::searchBySong(const QString &song)
 {
-    emit beginResetModel();
-    clear();
-    emit endResetModel();
-
     searchByHelper("Songs", song);
 }
 
 void GrooveSearchModel::searchByAlbum(const QString &album)
 {
-    emit beginResetModel();
-    clear();
-    emit endResetModel();
-
     searchByHelper("Albums", album);
 }
 
@@ -69,6 +57,7 @@ void GrooveSearchModel::searchByAlbum(const QString &album)
 void GrooveSearchModel::searchByHelper(const QString &type, const QString &searchTerm)
 {
     qDebug() << Q_FUNC_INFO << "Searching by " << type << " for " << searchTerm;
+    clear();
 
     QNetworkRequest request;
     request.setUrl(QUrl("http://cowbell.grooveshark.com/more.php?getSearchResults"));
