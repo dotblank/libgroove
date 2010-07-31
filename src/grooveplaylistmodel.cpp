@@ -17,7 +17,7 @@
 
 GroovePlaylistModel::GroovePlaylistModel(QObject *parent) :
     GrooveSongsModel(parent),
-    m_currentTrack(0)
+    m_currentTrack(-1)
 {
 }
 
@@ -52,16 +52,20 @@ int GroovePlaylistModel::indexOf(GrooveSong *song, int from)
 
 GrooveSong *GroovePlaylistModel::next()
 {
-    if (++m_currentTrack >= count())
+    if (++m_currentTrack >= count()) {
+        m_currentTrack = count() - 1;
         return 0;
+    }
 
     return m_songs.at(m_currentTrack);
 }
 
 GrooveSong *GroovePlaylistModel::previous()
 {
-    if (--m_currentTrack < 0 || !count())
+    if (--m_currentTrack < 0 || !count()) {
+        m_currentTrack = 0;
         return 0;
+    }
 
     return m_songs.at(m_currentTrack);
 }
