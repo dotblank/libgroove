@@ -77,7 +77,7 @@ void GrooveSearchModel::searchByAlbum(const QString &album)
 
 QModelIndex GrooveSearchModel::index(int row, int column, const QModelIndex &parent) const
 {
-    if (row < 0 || row > m_songs.count() || column < 0 || column > GROOVE_SEARCHMODELMAXCOLS)
+    if (row < 0 || row >= m_songs.count() || column < 0 || column > GROOVE_SEARCHMODELMAXCOLS)
         return QModelIndex();
 
     return createIndex(row, column);
@@ -100,7 +100,7 @@ int GrooveSearchModel::columnCount(const QModelIndex &parent) const
 
 QVariant GrooveSearchModel::data(const QModelIndex &index, int role) const
 {
-    if (index.column() > GROOVE_SEARCHMODELMAXCOLS || index.row() < 0 || index.row() > m_songs.count())
+    if (index.column() >= GROOVE_SEARCHMODELMAXCOLS || index.row() < 0 || index.row() >= m_songs.count())
         return QVariant();
 
     switch (role) {
@@ -208,7 +208,7 @@ void GrooveSearchModel::searchCompleted()
 
 GrooveSong *GrooveSearchModel::songByIndex(const QModelIndex &index)
 {
-    if (index.row() < 0 || index.row() > m_songs.count()) {
+    if (index.row() < 0 || index.row() >= m_songs.count()) {
         qDebug() << Q_FUNC_INFO << "Requested a bad row index: " << index.row();
         return NULL;
     }
