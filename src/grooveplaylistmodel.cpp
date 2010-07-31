@@ -52,7 +52,7 @@ int GroovePlaylistModel::indexOf(GrooveSong *song, int from)
 
 GrooveSong *GroovePlaylistModel::next()
 {
-    if (++m_currentTrack > count())
+    if (++m_currentTrack >= count())
         return 0;
 
     return m_songs.at(m_currentTrack);
