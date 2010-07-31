@@ -21,21 +21,24 @@
 #include <QString>
 #include <QMetaType>
 #include <QVariantMap>
+class QNetworkReply;
 
 #include "libgroove_global.h"
 
-class LIBGROOVESHARED_EXPORT GrooveSongData : public QSharedData
+class LIBGROOVESHARED_EXPORT GrooveSongData
 {
 public:
     QVariantMap m_data;
 };
 
-class LIBGROOVESHARED_EXPORT GrooveSong
+class LIBGROOVESHARED_EXPORT GrooveSong : public QObject
 {
+Q_OBJECT
 public:
     GrooveSong(const QVariantMap &data);
+    ~GrooveSong();
 
-    int songID() const;
+    QString songID() const;
     int albumID() const;
     int artistID() const;
     int genreID() const;
@@ -75,8 +78,29 @@ public:
     int TSAddedInt() const;
     int rank() const;
 
+public slots:
+    /*!
+        Calling this will initiate communication with Grooveshark to stream this track.
+
+        Streaming is not an instantaneous process, it may take a while before streaming is ready.
+
+        You will recieve notification through the streamingStarted() signal.
+
+        \sa streamingStarted()
+    */
+    void startStreaming();
+
+private slots:
+    void streamingKeyReady();
+
+signals:
+    /*!
+        This signal is emitted when this track first has incoming data ready to be processed as a stream.
+    */
+    void streamingStarted(QNetworkReply *httpStream);
+
 private:
-    QSharedDataPointer<GrooveSongData> d;
+    GrooveSongData *d;
 };
 
 #endif // GROOVESONG_H

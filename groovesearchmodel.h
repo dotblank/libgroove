@@ -27,6 +27,7 @@ class GrooveSearchModel : public QAbstractItemModel
     Q_OBJECT
 public:
     explicit GrooveSearchModel(QObject *parent = 0);
+    ~GrooveSearchModel();
 
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
     virtual QModelIndex parent(const QModelIndex &child) const;
@@ -34,6 +35,13 @@ public:
     virtual int columnCount(const QModelIndex &parent) const;
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+
+    /*!
+        Retrieve a song for a given \a index.
+
+        Returns a pointer to the song or 0 if there is an error.
+    */
+    GrooveSong *songByIndex(const QModelIndex &index);
 public slots:
     void searchByArtist(const QString &artist);
     void searchBySong(const QString &song);
@@ -49,7 +57,7 @@ private:
     /*!
         List of songs in this model.
     */
-    QList<GrooveSong> m_songs;
+    QList<GrooveSong *> m_songs;
 private slots:
     /*!
         Invoked when a currently running search completes.

@@ -32,9 +32,16 @@ GrooveSearchModel::GrooveSearchModel(QObject *parent) :
 {
 }
 
+GrooveSearchModel::~GrooveSearchModel()
+{
+    qDeleteAll(m_songs);
+    m_songs.clear();
+}
+
 void GrooveSearchModel::searchByArtist(const QString &artist)
 {
     emit beginResetModel();
+    qDeleteAll(m_songs);
     m_songs.clear();
     emit endResetModel();
 
@@ -44,15 +51,17 @@ void GrooveSearchModel::searchByArtist(const QString &artist)
 void GrooveSearchModel::searchBySong(const QString &song)
 {
     emit beginResetModel();
+    qDeleteAll(m_songs);
     m_songs.clear();
     emit endResetModel();
 
-    searchByHelper("Song", song);
+    searchByHelper("Songs", song);
 }
 
 void GrooveSearchModel::searchByAlbum(const QString &album)
 {
     emit beginResetModel();
+    qDeleteAll(m_songs);
     m_songs.clear();
     emit endResetModel();
 
@@ -93,11 +102,11 @@ QVariant GrooveSearchModel::data(const QModelIndex &index, int role) const
     case Qt::DisplayRole:
         switch (index.column()) {
         case 0:
-            return m_songs[index.row()].songName();
+            return m_songs[index.row()]->songName();
         case 1:
-            return m_songs[index.row()].artistName();
+            return m_songs[index.row()]->artistName();
         case 2:
-            return m_songs[index.row()].albumName();
+            return m_songs[index.row()]->albumName();
         }
     }
 
@@ -166,24 +175,38 @@ void GrooveSearchModel::searchCompleted()
 
     QJson::Parser parser;
     bool ok;
-    QVariantMap result = parser.parse (reply->readAll(), &ok).toMap();
+    QByteArray response = reply->readAll();
+    QVariantMap result = parser.parse (response, &ok).toMap();
     if (!ok) {
         // TODO
       qWarning("An error occurred during parsing");
       return;
     }
 
-    QList<GrooveSong> newSongList;
+    QList<GrooveSong *> newSongList;
     foreach (const QVariant &song, result["result"].toList()) {
         QVariantMap songData = song.toMap();
 
-        newSongList.append(GrooveSong(songData));
+        newSongList.append(new GrooveSong(songData));
     }
 
+    if (!newSongList.count())
+        return;
+
     beginInsertRows(QModelIndex(), 0, newSongList.count() - 1);
+    qDeleteAll(m_songs);
     m_songs = newSongList;
     endInsertRows();
 
     qDebug() << Q_FUNC_INFO << "Search found " << m_songs.count() << " songs";
 }
 
+GrooveSong *GrooveSearchModel::songByIndex(const QModelIndex &index)
+{
+    if (index.row() < 0 || index.row() > m_songs.count()) {
+        qDebug() << Q_FUNC_INFO << "Requested a bad row index: " << index.row();
+        return NULL;
+    }
+
+    return m_songs[index.row()];
+}

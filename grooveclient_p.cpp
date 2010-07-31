@@ -146,5 +146,7 @@ QString GrooveClientPrivate::grooveMessageToken(const QString &method)
     QString rs;
     rs.append(rnum);
     rs.append(QCryptographicHash::hash(messageToken.toAscii(), QCryptographicHash::Sha1).toHex());
+
+    qDebug() << Q_FUNC_INFO << "Produced token " << rs;
     return rs;
 }
