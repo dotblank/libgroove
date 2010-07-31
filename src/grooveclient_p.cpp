@@ -31,7 +31,7 @@ GrooveClientPrivate *GrooveClientPrivate::m_instance = NULL;
 
 void GrooveClientPrivate::processPHPSessionId()
 {
-    qDebug("processPHPSessionId");
+    qDebug() << Q_FUNC_INFO << "processing";
     QList<QNetworkCookie> cookieList = GrooveClient::networkManager()->cookieJar()->cookiesForUrl(QUrl("http://listen.grooveshark.com"));
 
     foreach (const QNetworkCookie &cookie, cookieList) {
@@ -44,7 +44,7 @@ void GrooveClientPrivate::processPHPSessionId()
     }
 
     // FIXME
-    qFatal("libgroove: Couldn't get PHP cookie?");
+    qFatal("%sCouldn't get PHP cookie?", Q_FUNC_INFO);
 }
 
 void GrooveClientPrivate::fetchSessionToken()
@@ -76,11 +76,10 @@ void GrooveClientPrivate::fetchSessionToken()
 
 void GrooveClientPrivate::processSessionToken()
 {
-    qDebug() << Q_FUNC_INFO << "got a reply, processing";
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
     Q_ASSERT(reply);
     if (!reply) {
-        qWarning("GrooveClient::processSessionToken(): got a reply without a reply");
+        qWarning() << Q_FUNC_INFO << "got a reply without a reply";
         return;
     }
 
@@ -89,19 +88,19 @@ void GrooveClientPrivate::processSessionToken()
     QVariantMap result = parser.parse(reply->readAll(),&ok).toMap();
     if(!ok) {
         // TODO
-        qFatal("GrooveClient::processSessionToken(): Error parsing request");
+        qFatal("%sError parsing request", Q_FUNC_INFO);
         return;
     }
 
     if (result["message"].toString().length()) {
         // presume this is an error always
         // TODO
-        qFatal("GrooveClient::processSessionToken(): Error from GrooveShark: %s", qPrintable(result["message"].toString()));
+        qFatal("%sError from GrooveShark: %s", qPrintable(result["message"].toString()), Q_FUNC_INFO);
         return;
     }
 
     m_sessionToken = result["result"].toString();
-    //qDebug("Got session token: %s", qPrintable(m_sessionToken));
+    qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
     emit connected();
 }
 
