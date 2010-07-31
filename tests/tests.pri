@@ -1,4 +1,4 @@
-QT += testlib
+QT += testlib network
 TEMPLATE = app
 TARGET = 
 DEPENDPATH += . ../../include/
