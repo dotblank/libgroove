@@ -16,25 +16,17 @@
 #ifndef GROOVESEARCHREQUEST_H
 #define GROOVESEARCHREQUEST_H
 
-#include <QAbstractItemModel>
-
 #include "groovesong.h"
+#include "groovesongsmodel.h"
 
 class GrooveSearchModelPrivate;
 
-class GrooveSearchModel : public QAbstractItemModel
+class GrooveSearchModel : public GrooveSongsModel
 {
     Q_OBJECT
 public:
     explicit GrooveSearchModel(QObject *parent = 0);
     ~GrooveSearchModel();
-
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    virtual QModelIndex parent(const QModelIndex &child) const;
-    virtual int rowCount(const QModelIndex &parent) const;
-    virtual int columnCount(const QModelIndex &parent) const;
-    virtual QVariant data(const QModelIndex &index, int role) const;
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     /*!
         Retrieve a song for a given \a index.
@@ -47,11 +39,6 @@ public slots:
     void searchBySong(const QString &song);
     void searchByAlbum(const QString &album); // XXX: should this really be here? causes problems due to different fields returned?
 
-    /*!
-        Clears this model of all songs, deleting songs which are not referred to in any other models.
-    */
-    void clear();
-
 private:
     /*!
         Performs a search of the given \a type for a \a searchTerm on this model instance.
@@ -59,10 +46,6 @@ private:
     */
     void searchByHelper(const QString &type, const QString &searchTerm);
 
-    /*!
-        List of songs in this model.
-    */
-    QList<GrooveSong *> m_songs;
 private slots:
     /*!
         Invoked when a currently running search completes.

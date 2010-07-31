@@ -28,22 +28,13 @@
 #include "grooveclient_p.h"
 
 GrooveSearchModel::GrooveSearchModel(QObject *parent) :
-    QAbstractItemModel(parent)
+    GrooveSongsModel(parent)
 {
 }
 
 GrooveSearchModel::~GrooveSearchModel()
 {
     clear();
-}
-
-void GrooveSearchModel::clear()
-{
-    foreach (GrooveSong *song, m_songs) {
-        song->deref();
-    }
-
-    m_songs.clear();
 }
 
 void GrooveSearchModel::searchByArtist(const QString &artist)
@@ -72,75 +63,6 @@ void GrooveSearchModel::searchByAlbum(const QString &album)
 
     searchByHelper("Albums", album);
 }
-
-#define GROOVE_SEARCHMODELMAXCOLS 2
-
-QModelIndex GrooveSearchModel::index(int row, int column, const QModelIndex &parent) const
-{
-    if (row < 0 || row >= m_songs.count() || column < 0 || column > GROOVE_SEARCHMODELMAXCOLS)
-        return QModelIndex();
-
-    return createIndex(row, column);
-}
-
-QModelIndex GrooveSearchModel::parent(const QModelIndex &child) const
-{
-    return QModelIndex();
-}
-
-int GrooveSearchModel::rowCount(const QModelIndex &parent) const
-{
-    return m_songs.count();
-}
-
-int GrooveSearchModel::columnCount(const QModelIndex &parent) const
-{
-    return GROOVE_SEARCHMODELMAXCOLS + 1; // GROOVE_SEARCHMODELMAXCOLS is 0 based
-}
-
-QVariant GrooveSearchModel::data(const QModelIndex &index, int role) const
-{
-    if (index.column() >= GROOVE_SEARCHMODELMAXCOLS || index.row() < 0 || index.row() >= m_songs.count())
-        return QVariant();
-
-    switch (role) {
-    case Qt::DisplayRole:
-        switch (index.column()) {
-        case 0:
-            return m_songs[index.row()]->songName();
-        case 1:
-            return m_songs[index.row()]->artistName();
-        case 2:
-            return m_songs[index.row()]->albumName();
-        }
-    }
-
-    return QVariant();
-}
-
-QVariant GrooveSearchModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (section < 0 || section > GROOVE_SEARCHMODELMAXCOLS)
-        return QVariant();
-
-    if (orientation == Qt::Vertical)
-        return QVariant();
-
-    switch (role) {
-    case Qt::DisplayRole:
-        switch (section) {
-        case 0:
-            return tr("Title");
-        case 1:
-            return tr("Artist");
-        case 2:
-            return tr("Album");
-        }
-    }
-
-    return QVariant();
-}
-
 
 /****/
 

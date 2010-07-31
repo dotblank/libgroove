@@ -20,10 +20,14 @@ DEFINES += LIBGROOVE_LIBRARY
 SOURCES += grooveclient.cpp \
     groovesong.cpp \
     groovesearchmodel.cpp \
-    grooveclient_p.cpp
+    grooveclient_p.cpp \
+    grooveplaylistmodel.cpp \
+    groovesongsmodel.cpp
 
 HEADERS += grooveclient.h\
         libgroove_global.h \
     groovesong.h \
     groovesearchmodel.h \
-    grooveclient_p.h
+    grooveclient_p.h \
+    grooveplaylistmodel.h \
+    groovesongsmodel.h

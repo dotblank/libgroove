@@ -94,14 +94,16 @@ public slots:
     */
     void startStreaming();
 
-private slots:
-    void streamingKeyReady();
-
 signals:
     /*!
         This signal is emitted when this track first has incoming data ready to be processed as a stream.
     */
     void streamingStarted(QNetworkReply *httpStream);
+
+
+private slots:
+    void streamingKeyReady();
+
 
 private:
     GrooveSongData *d;
