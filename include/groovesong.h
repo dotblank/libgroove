@@ -104,8 +104,8 @@ signals:
 private slots:
     void streamingKeyReady();
 
-
-private:
+// XXX: protected for tst_GroovePlaylistModel::testOwnershipRef(), would be nice if we could make this private again.
+protected:
     GrooveSongData *d;
 };
 

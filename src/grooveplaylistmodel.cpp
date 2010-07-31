@@ -14,6 +14,7 @@
  */
 
 #include "grooveplaylistmodel.h"
+#include "groovesong.h"
 
 GroovePlaylistModel::GroovePlaylistModel(QObject *parent) :
     GrooveSongsModel(parent),
@@ -28,6 +29,9 @@ void GroovePlaylistModel::append(GrooveSong *song)
 
 void GroovePlaylistModel::insert(int position, GrooveSong *song)
 {
+    // acquire a ref
+    song->ref();
+
     beginInsertRows(QModelIndex(), position, position);
     m_songs.insert(position, song);
     endInsertRows();

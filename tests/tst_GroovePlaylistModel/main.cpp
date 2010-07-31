@@ -155,4 +155,25 @@ void tst_GroovePlaylistModel::currentTrack()
     // covered by ::previous()
 }
 
+
+// Test that GroovePlaylistModel correctly acquires a reference to GrooveSong.
+class GroovePlaylistBugTestSong : public GrooveSong
+{
+public:
+    GroovePlaylistBugTestSong(const QVariantMap &data) : GrooveSong(data) {}
+    friend class tst_GroovePlaylistModel;
+};
+
+void tst_GroovePlaylistModel::testOwnershipRef()
+{
+    GroovePlaylistModel gpm;
+
+    GroovePlaylistBugTestSong *g = new GroovePlaylistBugTestSong(QVariantMap());
+    QVERIFY(g->d->m_refCount == 1); // there is always a magic initial reference
+
+    gpm.append(g);
+    QVERIFY(g->d->m_refCount == 2); // make sure there's one more after we take ownership
+}
+
+
 QTEST_MAIN(tst_GroovePlaylistModel)

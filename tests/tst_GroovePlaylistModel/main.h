@@ -15,6 +15,9 @@ private slots:
     void previous();
     void currentTrack();
 
+    // bugs
+    void testOwnershipRef();
+
     void cleanupTestCase();
 };
 
