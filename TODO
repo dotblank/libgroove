@@ -2,7 +2,9 @@
   streaming
 - Unit testing for GrooveSearchModel
 - Unit testing for GrooveSongsModel
-- Integrate radio mode into GroovePlaylistModel (or a subclass) somehow
+- Integrate radio mode into GroovePlaylistMode:
+  GPM::setRadioMode(true);
+  ::next() automatically initiates a radio request for next track if there are 1 (or 2?) tracks remaining
 - Integrate API for prefetch mode into GrooveSong somehow (startStreaming()
   plus a new startPrefetch()?)
 - Review types of data in GrooveSong
