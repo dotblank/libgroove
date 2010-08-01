@@ -44,7 +44,7 @@ void GrooveClientPrivate::processPHPSessionId()
     }
 
     // FIXME
-    qFatal("%sCouldn't get PHP cookie?", Q_FUNC_INFO);
+    GROOVE_VERIFY_OR_DIE(m_phpCookie.length(), "PHP cookie couldn't be set");
 }
 
 void GrooveClientPrivate::fetchSessionToken()
@@ -77,27 +77,15 @@ void GrooveClientPrivate::fetchSessionToken()
 void GrooveClientPrivate::processSessionToken()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    Q_ASSERT(reply);
-    if (!reply) {
-        qWarning() << Q_FUNC_INFO << "got a reply without a reply";
-        return;
-    }
+    if (GROOVE_VERIFY(reply, "called without a QNetworkReply as sender")) return;
 
     bool ok;
     QJson::Parser parser;
     QVariantMap result = parser.parse(reply->readAll(),&ok).toMap();
-    if(!ok) {
-        // TODO
-        qFatal("%sError parsing request", Q_FUNC_INFO);
-        return;
-    }
 
-    if (result["message"].toString().length()) {
-        // presume this is an error always
-        // TODO
-        qFatal("%sError from GrooveShark: %s", qPrintable(result["message"].toString()), Q_FUNC_INFO);
-        return;
-    }
+    // TODO
+    GROOVE_VERIFY_OR_DIE(ok, "couldn't parse reply to session token request");
+    GROOVE_VERIFY_OR_DIE(!result["message"].toString().length(), qPrintable(result["message"].toString()));
 
     m_sessionToken = result["result"].toString();
     qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
@@ -121,12 +109,7 @@ GrooveClientPrivate *GrooveClientPrivate::instance()
 
 QString GrooveClientPrivate::grooveMessageToken(const QString &method)
 {
-    Q_ASSERT(m_sessionToken.length());
-
-    if (!m_sessionToken.length()) {
-        qWarning("requesting grooveMessageToken without an established session, no can do");
-        return QString();
-    }
+    if (GROOVE_VERIFY(m_sessionToken.length(), "made a request to create message without session token")) return QString();
 
     QString rnum =  QString(qrand() %9 + 48)
                     + QString(qrand() %9 + 48)

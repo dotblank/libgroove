@@ -276,21 +276,14 @@ void GrooveSong::streamingKeyReady()
 {
     qDebug() << Q_FUNC_INFO << "Ready for " << songName();
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if (!reply) {
-        qWarning() << Q_FUNC_INFO << "got searchCompleted() with no reply?";
-        return;
-    }
-    Q_ASSERT(reply);
+    if (GROOVE_VERIFY(reply, "reply with streaming key, without a QNetworkReply")) return;
 
     QJson::Parser parser;
     bool ok;
     QByteArray response = reply->readAll();
     QVariantMap result = parser.parse(response, &ok).toMap();
     qDebug() << Q_FUNC_INFO << response;
-    if (!ok) {
-      qWarning() << Q_FUNC_INFO << "An error occurred during parsing";
-      return;
-    }
+    if (GROOVE_VERIFY(ok, "error occured whilst parsing streaming key reply")) return;
     QVariantMap results = result["result"].toMap();
 
     QNetworkRequest req;

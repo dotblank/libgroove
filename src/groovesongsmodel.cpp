@@ -56,8 +56,10 @@ int GrooveSongsModel::columnCount(const QModelIndex &parent) const
 
 QVariant GrooveSongsModel::data(const QModelIndex &index, int role) const
 {
-    if (index.column() >= GrooveSongsModelMaxCols || index.row() < 0 || index.row() >= m_songs.count())
-        return QVariant();
+    if (GROOVE_VERIFY(index.row() >= 0, "row is negative")) return QVariant();
+    if (GROOVE_VERIFY(index.row() < m_songs.count(), "row is higher than the number of songs I have")) return QVariant();
+    if (GROOVE_VERIFY(index.column() >= 0, "column is negative")) return QVariant();
+    if (GROOVE_VERIFY(index.column() <= GrooveSongsModelMaxCols, "column is higher than GrooveSongsModelMaxCols")) return QVariant();
 
     switch (role) {
     case Qt::DisplayRole:
@@ -76,11 +78,11 @@ QVariant GrooveSongsModel::data(const QModelIndex &index, int role) const
 
 QVariant GrooveSongsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    if (section < 0 || section > GrooveSongsModelMaxCols)
-        return QVariant();
-
     if (orientation == Qt::Vertical)
         return QVariant();
+
+    if (GROOVE_VERIFY(section >= 0, "section is negative")) return QVariant();
+    if (GROOVE_VERIFY(section <= GrooveSongsModelMaxCols, "section is higher than GrooveSongsModelMaxCols")) return QVariant();
 
     switch (role) {
     case Qt::DisplayRole:

@@ -24,11 +24,18 @@ GroovePlaylistModel::GroovePlaylistModel(QObject *parent) :
 
 void GroovePlaylistModel::append(GrooveSong *song)
 {
+    if (GROOVE_VERIFY(song, "song is NULL")) return;
+
+    // ref is made inside insert()
     insert(m_songs.count(), song);
 }
 
 void GroovePlaylistModel::insert(int position, GrooveSong *song)
 {
+    if (GROOVE_VERIFY(song, "song is NULL")) return;
+    if (GROOVE_VERIFY(position >= 0, "position is less than 0")) return;
+    if (GROOVE_VERIFY(position <= m_songs.count(), "position is greater than it should be")) return;
+
     // acquire a ref
     song->ref();
 
@@ -39,6 +46,9 @@ void GroovePlaylistModel::insert(int position, GrooveSong *song)
 
 void GroovePlaylistModel::removeAt(int songPosition)
 {
+    if (GROOVE_VERIFY(songPosition >= 0, "songPosition is less than 0")) return;
+    if (GROOVE_VERIFY(songPosition < m_songs.count(), "songPosition is greater than the number of songs")) return;
+
     beginRemoveRows(QModelIndex(), songPosition, songPosition);
     m_songs.at(songPosition)->deref();
     m_songs.removeAt(songPosition);
@@ -47,6 +57,10 @@ void GroovePlaylistModel::removeAt(int songPosition)
 
 int GroovePlaylistModel::indexOf(GrooveSong *song, int from)
 {
+    if (GROOVE_VERIFY(song, "song is NULL")) return -1;
+    if (GROOVE_VERIFY(from >= 0, "from is negative")) return -1;
+    if (GROOVE_VERIFY(from <= m_songs.count(), "from is higher than the playlist length")) return -1;
+
     for (int i = from; i != m_songs.count(); ++i) {
         if (m_songs.at(i) == song)
             return i;

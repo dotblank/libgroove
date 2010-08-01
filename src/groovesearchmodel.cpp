@@ -83,21 +83,13 @@ void GrooveSearchModel::searchByHelper(const QString &type, const QString &searc
 void GrooveSearchModel::searchCompleted()
 {
     QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if (!reply) {
-        qWarning("GrooveSearchModel::searchCompleted(): got searchCompleted() with no reply?");
-        return;
-    }
-    Q_ASSERT(reply);
+    if (GROOVE_VERIFY(reply, "search returned without a QNetworkReply")) return;
 
     QJson::Parser parser;
     bool ok;
     QByteArray response = reply->readAll();
     QVariantMap result = parser.parse (response, &ok).toMap();
-    if (!ok) {
-        // TODO
-      qWarning("An error occurred during parsing");
-      return;
-    }
+    if (GROOVE_VERIFY(ok, "error occurred whilst parsing search results")) return;
 
     QList<GrooveSong *> newSongList;
     foreach (const QVariant &song, result["result"].toList()) {
@@ -119,10 +111,9 @@ void GrooveSearchModel::searchCompleted()
 
 GrooveSong *GrooveSearchModel::songByIndex(const QModelIndex &index)
 {
-    if (index.row() < 0 || index.row() >= m_songs.count()) {
-        qDebug() << Q_FUNC_INFO << "Requested a bad row index: " << index.row();
-        return NULL;
-    }
+    qDebug() << index.row();
+    if (GROOVE_VERIFY(index.row() >= 0, "row is negative")) return 0;
+    if (GROOVE_VERIFY(index.row() < m_songs.count(), "row is higher than the number of songs model contains")) return 0;
 
     return m_songs[index.row()];
 }

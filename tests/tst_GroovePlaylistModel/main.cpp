@@ -101,7 +101,7 @@ void tst_GroovePlaylistModel::indexOf()
 
     // initial sanity checks
     QVERIFY(gpm.count() == 0);
-    QCOMPARE(gpm.indexOf(0), -1);
+    QCOMPARE(gpm.indexOf((GrooveSong*)1 /* can't pass NULL, that will assert */), -1);
 }
 
 void tst_GroovePlaylistModel::next()
