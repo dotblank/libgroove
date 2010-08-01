@@ -1,0 +1,10 @@
+- Change GrooveSong::streamingStarted() signal to pass the GrooveSong that is
+  streaming
+- Unit testing for GrooveSearchModel
+- Unit testing for GrooveSongsModel
+- Integrate radio mode into GroovePlaylistModel (or a subclass) somehow
+- Integrate API for prefetch mode into GrooveSong somehow (startStreaming()
+  plus a new startPrefetch()?)
+- Review types of data in GrooveSong
+- API documentation, GrooveSong and everywhere
+- GroovePlaylistModel::setCurrentTrack(int)? const QModelIndex&?
