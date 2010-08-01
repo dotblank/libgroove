@@ -8,3 +8,10 @@
 - Review types of data in GrooveSong
 - API documentation, GrooveSong and everywhere
 - GroovePlaylistModel::setCurrentTrack(int)? const QModelIndex&?
+- Error handling
+  - On connection
+  - On search request
+  - On stream key request
+  - Let client handle streaming errors
+  - MUST handle 'invalid token' error.. How do we express that in API?
+    Store failed search and retry?
