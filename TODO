@@ -17,3 +17,5 @@
   - Let client handle streaming errors
   - MUST handle 'invalid token' error.. How do we express that in API?
     Store failed search and retry?
+- Fix buildsystem for tests to not require relative path magic, and to
+  use the built version of the library when running the test.
