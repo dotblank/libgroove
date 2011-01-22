@@ -3,7 +3,7 @@ TEMPLATE = app
 DEPENDPATH += . ../../include/
 INCLUDEPATH += . ../../include/
 
-LIBS += ../../../libgroove-build-desktop/src/libgroove.so
+LIBS += $$OUT_PWD/../../src/libgroove.so
 
 # run after link
-QMAKE_POST_LINK = ./$${TARGET}
+QMAKE_POST_LINK = LD_LIBRARY_PATH=$$OUT_PWD/../../src/ ./$${TARGET}
