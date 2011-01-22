@@ -21,8 +21,8 @@
 #include <QVariantMap>
 #include <QDebug>
 
-#include <serializer.h> // qjson
-#include <parser.h> // qjson
+#include <qjson/serializer.h> // qjson
+#include <qjson/parser.h> // qjson
 
 #include "groovesearchmodel.h"
 #include "groovesong.h"

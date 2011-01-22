@@ -23,8 +23,8 @@
 #include <QCryptographicHash>
 #include <QDebug>
 
-#include <serializer.h> // qjson
-#include <parser.h> // qjson
+#include <qjson/serializer.h> // qjson
+#include <qjson/parser.h> // qjson
 
 #include "grooveclient.h"
 #include "grooveclient_p.h"

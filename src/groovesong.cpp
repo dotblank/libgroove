@@ -19,8 +19,8 @@
 #include <QNetworkRequest>
 #include <QNetworkReply>
 
-#include "serializer.h"
-#include "parser.h"
+#include <qjson/serializer.h>
+#include <qjson/parser.h>
 
 #include "groovesong.h"
 #include "grooveclient.h"
