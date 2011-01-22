@@ -31,3 +31,17 @@ HEADERS += grooveclient.h\
     grooveclient_p.h \
     grooveplaylistmodel.h \
     groovesongsmodel.h
+
+headers.files = $$HEADERS
+headers.path = /usr/include
+INSTALLS += headers
+
+target.path = /usr/lib
+INSTALLS += target
+
+unix {
+    CONFIG += create_pc create_prl
+    pkgconfig.files = $${OUT_PWD}/$${TARGET}.pc
+    pkgconfig.path = /usr/lib/pkgconfig
+    INSTALLS += pkgconfig
+}
