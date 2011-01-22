@@ -66,8 +66,8 @@ void GrooveSearchModel::searchByHelper(const QString &type, const QString &searc
     request.setHeader(request.ContentTypeHeader,QVariant("application/json"));
     QVariantMap jlist;
     QVariantMap header;
-    header.insert("client","gslite");
-    header.insert("clientRevision","20100412.09");
+    header.insert("client","htmlshark");
+    header.insert("clientRevision","20100831");
     header.insert("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
     header.insert("token", GrooveClientPrivate::instance()->grooveMessageToken("getSearchResults"));
     jlist.insert("method","getSearchResults");

@@ -52,13 +52,13 @@ void GrooveClientPrivate::processPHPSessionId()
 void GrooveClientPrivate::fetchSessionToken()
 {
     qDebug() << Q_FUNC_INFO << "fetching";
-    QNetworkRequest tokenRequest(QUrl("https://cowbell.grooveshark.com/service.php"));
+    QNetworkRequest tokenRequest(QUrl("https://cowbell.grooveshark.com/more.php"));
     tokenRequest.setHeader(tokenRequest.ContentTypeHeader, QVariant("application/json"));
 
     // headers
     QVariantMap vmap;
-    vmap.insert("client","gslite");
-    vmap.insert("clientRevision","20100412.09");
+    vmap.insert("client", "htmlshark");
+    vmap.insert("clientRevision", "20100831");
 
     // outer map
     QVariantMap jlist;
@@ -83,9 +83,14 @@ void GrooveClientPrivate::processSessionToken()
 
     bool ok;
     QJson::Parser parser;
-    QVariantMap result = parser.parse(reply->readAll(),&ok).toMap();
+    QByteArray sessionTokenReply = reply->readAll();
+    QVariantMap result = parser.parse(sessionTokenReply, &ok).toMap();
 
-    // TODO
+    if (!ok) {
+        qDebug() << Q_FUNC_INFO << "Session token request failed:";
+        qDebug() << sessionTokenReply;
+    }
+
     GROOVE_VERIFY_OR_DIE(ok, "couldn't parse reply to session token request");
     GROOVE_VERIFY_OR_DIE(!result["message"].toString().length(), qPrintable(result["message"].toString()));
 

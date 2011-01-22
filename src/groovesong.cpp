@@ -245,29 +245,33 @@ int GrooveSong::rank() const
 void GrooveSong::startStreaming()
 {
     qDebug() << Q_FUNC_INFO << "Started streaming for " << songName() << "(id: " << songID() << ")";
+
     QNetworkRequest request;
-    request.setUrl(QUrl("http://cowbell.grooveshark.com/more.php?getStreamKeyFromSongIdEx"));
+    request.setUrl(QUrl("http://listen.grooveshark.com/more.php?getStreamKeyFromSongIDEx"));
     request.setHeader(request.ContentTypeHeader,QVariant("application/json"));
     QVariantMap jlist;
     QVariantMap header;
-    header.insert("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
-    header.insert("token", GrooveClientPrivate::instance()->grooveMessageToken("getStreamKeyFromSongIDEx"));
-    header.insert("client","gslite");
-    header.insert("clientRevision","20100412.09");
-    jlist.insert("method","getStreamKeyFromSongIDEx");
-    jlist.insertMulti("header",header);
-    QVariantMap param;
     QVariantMap country;
     country.insert("CC1","0");
     country.insert("CC3","0");
     country.insert("ID","223");
     country.insert("CC2","0");
     country.insert("CC4","1073741824");
+    //header.insert("uuid","DEA8E133-2080-F666-4B38-9465187B20A9");
+    header.insert("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
+    header.insert("client","jsqueue");
+    header.insert("clientRevision","20101012.37");
+    header.insert("token", GrooveClientPrivate::instance()->grooveMessageToken("getStreamKeyFromSongIDEx"));
+    header.insertMulti("country",country);
+    jlist.insert("method","getStreamKeyFromSongIDEx");
+    jlist.insertMulti("header",header);
+    QVariantMap param;
     param.insertMulti("country",country);
     param.insert("mobile",false);
     param.insert("songID", songID().toAscii());
     param.insert("prefetch",false);
     jlist.insertMulti("parameters",param);
+
     QJson::Serializer serializer;
     QNetworkReply *reply = GrooveClient::instance()->networkManager()->post(request, serializer.serialize(jlist));
     connect(reply, SIGNAL(finished()), SLOT(streamingKeyReady()));
