@@ -83,8 +83,6 @@ QVariant GrooveSongsModel::data(const QModelIndex &index, int role) const
         role = Qt::DisplayRole;
     }
 
-
-    qDebug() << Q_FUNC_INFO << index.row() << wantedData;
     switch (role) {
     case Qt::DisplayRole:
         switch (wantedData) {
