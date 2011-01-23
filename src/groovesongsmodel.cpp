@@ -15,15 +15,27 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// Qt
+#include <QUrl>
+
+// Us
 #include "groovesongsmodel.h"
 #include "groovesong.h"
 
 GrooveSongsModel::GrooveSongsModel(QObject *parent) :
     QAbstractItemModel(parent)
 {
+    // for QML
+    QHash<int, QByteArray> roles;
+
+    for (int i = 0; i < columnCount(QModelIndex()); i++)
+        roles[Qt::UserRole + i] = headerData(i, Qt::Horizontal, Qt::DisplayRole).toByteArray();
+
+    qDebug() << Q_FUNC_INFO << "Setting roles to " << roles;
+    setRoleNames(roles);
 }
 
-static const int GrooveSongsModelMaxCols = 2;
+static const int GrooveSongsModelMaxCols = 3;
 
 QModelIndex GrooveSongsModel::index(int row, int column, const QModelIndex &parent) const
 {
@@ -63,17 +75,33 @@ QVariant GrooveSongsModel::data(const QModelIndex &index, int role) const
     if (GROOVE_VERIFY(index.column() >= 0, "column is negative")) return QVariant();
     if (GROOVE_VERIFY(index.column() <= GrooveSongsModelMaxCols, "column is higher than GrooveSongsModelMaxCols")) return QVariant();
 
+    int wantedData = index.column();
+
+    if (role >= Qt::UserRole) {
+        // we do this to (mostly transparently) map QML roles to columns
+        wantedData = role - Qt::UserRole;
+        role = Qt::DisplayRole;
+    }
+
+
+    qDebug() << Q_FUNC_INFO << index.row() << wantedData;
     switch (role) {
     case Qt::DisplayRole:
-        switch (index.column()) {
+        switch (wantedData) {
         case 0:
             return m_songs[index.row()]->songName();
         case 1:
             return m_songs[index.row()]->artistName();
         case 2:
             return m_songs[index.row()]->albumName();
+        case 3:
+            if (!m_songs[index.row()]->coverArtFilename().length())
+                return QUrl("http://static.a.gs-cdn.net/webincludes/images/default/album_100.png");
+
+            return QUrl("http://beta.grooveshark.com/static/amazonart/m" + m_songs[index.row()]->coverArtFilename());
         }
     }
+
 
     return QVariant();
 }
@@ -90,11 +118,13 @@ QVariant GrooveSongsModel::headerData(int section, Qt::Orientation orientation, 
     case Qt::DisplayRole:
         switch (section) {
         case 0:
-            return tr("Title");
+            return tr("title");
         case 1:
-            return tr("Artist");
+            return tr("artist");
         case 2:
-            return tr("Album");
+            return tr("album");
+        case 3:
+            return tr("coverArtUrl");
         }
     }
 
