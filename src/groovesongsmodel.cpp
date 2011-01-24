@@ -93,10 +93,7 @@ QVariant GrooveSongsModel::data(const QModelIndex &index, int role) const
         case 2:
             return m_songs[index.row()]->albumName();
         case 3:
-            if (!m_songs[index.row()]->coverArtFilename().length())
-                return QUrl("http://static.a.gs-cdn.net/webincludes/images/default/album_100.png");
-
-            return QUrl("http://beta.grooveshark.com/static/amazonart/m" + m_songs[index.row()]->coverArtFilename());
+            return m_songs[index.row()]->coverArtUrl();
         }
     }
 

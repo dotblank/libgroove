@@ -23,6 +23,7 @@
 #include <QString>
 #include <QMetaType>
 #include <QVariantMap>
+#include <QUrl>
 class QNetworkReply;
 
 #include "libgroove_global.h"
@@ -55,7 +56,7 @@ public:
     void setYear(int year);
     int year() const;
     int trackNum() const;
-    QString coverArtFilename() const;
+    QUrl coverArtUrl() const;
     int TSAdded() const;
     int avgRating() const;
     int avgDuration() const;

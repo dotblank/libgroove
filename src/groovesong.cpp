@@ -102,9 +102,13 @@ int GrooveSong::trackNum() const
     return d->m_data["TrackNum"].toInt();
 }
 
-QString GrooveSong::coverArtFilename() const
+QUrl GrooveSong::coverArtUrl() const
 {
-    return d->m_data["CoverArtFilename"].toString();
+    qDebug() << Q_FUNC_INFO << d->m_data["CoverArtFilename"];
+    if (!d->m_data["CoverArtFilename"].toByteArray().length())
+        return QUrl("http://static.a.gs-cdn.net/webincludes/images/default/album_100.png");
+
+    return QUrl("http://beta.grooveshark.com/static/amazonart/m" + d->m_data["CoverArtFilename"].toByteArray());
 }
 
 int GrooveSong::TSAdded() const
