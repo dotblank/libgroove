@@ -26,6 +26,7 @@
 GrooveClient::GrooveClient() : d(new GrooveClientPrivate(this))
 {
     connect(d, SIGNAL(connected()), this, SIGNAL(connected()));
+    connect(d, SIGNAL(error(Groove::ConnectionError)), this, SIGNAL(error(Groove::ConnectionError)));
 }
 
 void GrooveClient::establishConnection()

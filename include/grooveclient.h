@@ -44,6 +44,11 @@ signals:
     */
     void connected();
 
+    /*!
+        Indicates that the client was unable to connect to Grooveshark.
+    */
+    void error(Groove::ConnectionError error);
+
 private:
     GrooveClient();
     GrooveClientPrivate *d;

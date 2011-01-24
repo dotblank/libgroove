@@ -18,8 +18,12 @@
 #ifndef GROOVECLIENT_P_H
 #define GROOVECLIENT_P_H
 
+// Qt
 #include <QObject>
 #include <QString>
+
+// Us
+#include "libgroove_global.h"
 
 class GrooveClientPrivate : public QObject
 {
@@ -32,10 +36,8 @@ public:
 
     static GrooveClientPrivate *instance();
 signals:
-    /*!
-        Indicates that the client made a session with Grooveshark successfully.
-    */
     void connected();
+    void error(Groove::ConnectionError error);
 
 public slots:
     /*!

@@ -45,8 +45,8 @@ void GrooveClientPrivate::processPHPSessionId()
         }
     }
 
-    // FIXME
-    GROOVE_VERIFY_OR_DIE(m_phpCookie.length(), "PHP cookie couldn't be set");
+    emit error(Groove::CommunicationError);
+    GROOVE_VERIFY(m_phpCookie.length(), "PHP cookie couldn't be set");
 }
 
 void GrooveClientPrivate::fetchSessionToken()
@@ -86,23 +86,20 @@ void GrooveClientPrivate::processSessionToken()
     QByteArray sessionTokenReply = reply->readAll();
     QVariantMap result = parser.parse(sessionTokenReply, &ok).toMap();
 
-    if (!ok) {
-        qDebug() << Q_FUNC_INFO << "Session token request failed:";
-        qDebug() << sessionTokenReply;
-    }
-
-    GROOVE_VERIFY_OR_DIE(ok, "couldn't parse reply to session token request");
-    GROOVE_VERIFY_OR_DIE(!result["message"].toString().length(), qPrintable(result["message"].toString()));
+    GROOVE_VERIFY(ok, "couldn't parse reply to session token request");
+    GROOVE_VERIFY(result["message"].toString().length(), qPrintable(result["message"].toString()));
 
     m_sessionToken = result["result"].toString();
+    qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
 
-    if (!m_sessionToken.length()) {
-        qDebug() << Q_FUNC_INFO << "Session token empty:";
+    if (!ok || !m_sessionToken.length()) {
+        qDebug() << Q_FUNC_INFO << "Session token request failed:";
         qDebug() << Q_FUNC_INFO << sessionTokenReply;
         qDebug() << Q_FUNC_INFO << reply->errorString();
+        emit error(Groove::SessionError);
+        return;
     }
 
-    qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
     emit connected();
 }
 
