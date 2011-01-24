@@ -18,6 +18,10 @@
 #ifndef GROOVESEARCHREQUEST_H
 #define GROOVESEARCHREQUEST_H
 
+// Qt
+#include <QNetworkReply>
+
+// Us
 #include "groovesong.h"
 #include "groovesongsmodel.h"
 
@@ -52,7 +56,9 @@ private slots:
     /*!
         Invoked when a currently running search completes.
     */
-    void searchCompleted();
+    void searchCompleted(const QByteArray &response);
+
+    void searchError(QNetworkReply::NetworkError rpcError);
 };
 
 #endif // GROOVESEARCHREQUEST_H

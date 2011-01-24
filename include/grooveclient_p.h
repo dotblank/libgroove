@@ -21,6 +21,7 @@
 // Qt
 #include <QObject>
 #include <QString>
+#include <QNetworkReply>
 
 // Us
 #include "libgroove_global.h"
@@ -48,11 +49,13 @@ public slots:
         Processes the first stage of the Grooveshark login process.
     */
     void processPHPSessionId();
+    void errorFetchingSessionId(QNetworkReply::NetworkError);
 
     /*!
         Process the second stage of the Grooveshark login process.
     */
-    void processSessionToken();
+    void processSessionToken(const QByteArray &sessionTokenReply);
+    void errorFetchingSessionToken(QNetworkReply::NetworkError);
 
     /*!
         Fetch a token to communicate with Grooveshark with.

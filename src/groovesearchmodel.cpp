@@ -15,9 +15,6 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QNetworkReply>
-#include <QNetworkRequest>
-#include <QNetworkAccessManager>
 #include <QVariantMap>
 #include <QDebug>
 
@@ -62,23 +59,21 @@ void GrooveSearchModel::searchByHelper(const QString &type, const QString &searc
     qDebug() << Q_FUNC_INFO << "Searching by " << type << " for " << searchTerm;
     clear();
 
-    GrooveRequest request(GrooveClient::instance(), GrooveRequest::more("getSearchResults"));
-    request.setMethod("getSearchResults");
-    request.setHeader("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
-    request.setHeader("token", GrooveClientPrivate::instance()->grooveMessageToken("getSearchResults"));
-    request.setParameter("type", type);
-    request.setParameter("query", searchTerm);
-    request.post(this, SLOT(searchCompleted()));
+    GrooveRequest *request = new GrooveRequest(GrooveClient::instance(), GrooveRequest::more("getSearchResults"));
+    request->setMethod("getSearchResults");
+    request->setHeader("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
+    request->setHeader("token", GrooveClientPrivate::instance()->grooveMessageToken("getSearchResults"));
+    request->setParameter("type", type);
+    request->setParameter("query", searchTerm);
+    connect(request, SIGNAL(success(QByteArray)), SLOT(searchCompleted(QByteArray)));
+    connect(request, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(searchError(QNetworkReply::NetworkError)));
+    request->post();
 }
 
-void GrooveSearchModel::searchCompleted()
+void GrooveSearchModel::searchCompleted(const QByteArray &response)
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if (GROOVE_VERIFY(reply, "search returned without a QNetworkReply")) return;
-
     QJson::Parser parser;
     bool ok;
-    QByteArray response = reply->readAll();
     QVariantMap result = parser.parse (response, &ok).toMap();
     if (GROOVE_VERIFY(ok, "error occurred whilst parsing search results")) return;
 
@@ -98,6 +93,11 @@ void GrooveSearchModel::searchCompleted()
     endInsertRows();
 
     qDebug() << Q_FUNC_INFO << "Search found " << m_songs.count() << " songs";
+}
+
+void GrooveSearchModel::searchError(QNetworkReply::NetworkError rpcError)
+{
+    qDebug() << Q_FUNC_INFO << "Search failed: " << rpcError;
 }
 
 GrooveSong *GrooveSearchModel::songByIndex(const QModelIndex &index)

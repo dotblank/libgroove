@@ -18,6 +18,7 @@ GrooveRequest::GrooveRequest(GrooveClient *client, QString service)
     : m_request(QUrl(service))
     , m_client(client)
 {
+    qDebug() << Q_FUNC_INFO << "Creating request to " << service;
     m_headers.insert("client", "htmlshark");
     m_headers.insert("clientRevision", GrooveRequest::REVISION);
 }
@@ -31,7 +32,7 @@ QVariantMap GrooveRequest::buildRequest() const
     return jlist;
 }
 
-void GrooveRequest::post(QObject const *receiver, char const *slot)
+void GrooveRequest::post()
 {
     m_request.setHeader(m_request.ContentTypeHeader, "application/json");
 
@@ -41,15 +42,34 @@ void GrooveRequest::post(QObject const *receiver, char const *slot)
     qDebug() << Q_FUNC_INFO << serializer.serialize(buildRequest());
 
     QNetworkReply *reply = m_client->networkManager()->post(m_request, serializer.serialize(buildRequest()));
-    receiver->connect(reply, SIGNAL (finished ()), slot, Qt::AutoConnection);
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SIGNAL(error(QNetworkReply::NetworkError)));
+    connect(reply, SIGNAL(finished()), SLOT(onFinished()));
 }
 
-void GrooveRequest::get(QObject const *receiver, char const *slot)
+void GrooveRequest::get()
 {
     m_request.setHeader(m_request.ContentTypeHeader, "application/x-www-form-urlencoded");
 
     QNetworkReply *reply = m_client->networkManager()->get(m_request);
-    receiver->connect(reply, SIGNAL (finished ()), slot, Qt::AutoConnection);
+    connect(reply, SIGNAL(error(QNetworkReply::NetworkError)), SIGNAL(error(QNetworkReply::NetworkError)));
+    connect(reply, SIGNAL(finished()), SLOT(onFinished()));
+}
+
+void GrooveRequest::onFinished()
+{
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (GROOVE_VERIFY(reply, "search returned without a QNetworkReply")) return;
+
+    if (!reply->error()) {
+        QByteArray response = reply->readAll();
+        emit success(response);
+    } else {
+        qDebug() << Q_FUNC_INFO << "Not emitting for failed RPC";
+        return;
+    }
+
+    qDebug() << Q_FUNC_INFO << "Destroying response";
+    deleteLater();
 }
 
 void GrooveRequest::setHeader(const QString &header, const QVariant &value)

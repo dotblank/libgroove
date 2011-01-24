@@ -15,8 +15,6 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QNetworkRequest>
-#include <QNetworkReply>
 #include <QNetworkAccessManager>
 #include <QNetworkCookieJar>
 #include <QNetworkCookie>
@@ -50,22 +48,26 @@ void GrooveClientPrivate::processPHPSessionId()
     GROOVE_VERIFY(m_phpCookie.length(), "PHP cookie couldn't be set");
 }
 
-void GrooveClientPrivate::fetchSessionToken()
+void GrooveClientPrivate::errorFetchingSessionId(QNetworkReply::NetworkError rpcError)
 {
-    GrooveRequest request(q, GrooveRequest::more("getCommunicationToken"));
-    request.setMethod("getCommunicationToken");
-    request.setParameter("secretKey", QCryptographicHash::hash(m_phpCookie.toUtf8(), QCryptographicHash::Md5).toHex());
-    request.post(this, SLOT(processSessionToken()));
+    qDebug() << Q_FUNC_INFO << "Error fetching session token: " << rpcError;
+    emit error(Groove::CommunicationError);
 }
 
-void GrooveClientPrivate::processSessionToken()
+void GrooveClientPrivate::fetchSessionToken()
 {
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if (GROOVE_VERIFY(reply, "called without a QNetworkReply as sender")) return;
+    GrooveRequest *request = new GrooveRequest(q, GrooveRequest::more("getCommunicationToken"));
+    request->setMethod("getCommunicationToken");
+    request->setParameter("secretKey", QCryptographicHash::hash(m_phpCookie.toUtf8(), QCryptographicHash::Md5).toHex());
+    connect(request, SIGNAL(success(QByteArray)), SLOT(processSessionToken(QByteArray)));
+    connect(request, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(errorFetchingSessionToken(QNetworkReply::NetworkError)));
+    request->post();
+}
 
+void GrooveClientPrivate::processSessionToken(const QByteArray &sessionTokenReply)
+{
     bool ok;
     QJson::Parser parser;
-    QByteArray sessionTokenReply = reply->readAll();
     QVariantMap result = parser.parse(sessionTokenReply, &ok).toMap();
 
     GROOVE_VERIFY(ok, "couldn't parse reply to session token request");
@@ -77,12 +79,17 @@ void GrooveClientPrivate::processSessionToken()
     if (!ok || !m_sessionToken.length()) {
         qDebug() << Q_FUNC_INFO << "Session token request failed:";
         qDebug() << Q_FUNC_INFO << sessionTokenReply;
-        qDebug() << Q_FUNC_INFO << reply->errorString();
         emit error(Groove::SessionError);
         return;
     }
 
     emit connected();
+}
+
+void GrooveClientPrivate::errorFetchingSessionToken(QNetworkReply::NetworkError rpcError)
+{
+    qDebug() << Q_FUNC_INFO << "Error fetching session token: " << rpcError;
+    emit error(Groove::SessionError);
 }
 
 const QString &GrooveClientPrivate::sessionToken() const
