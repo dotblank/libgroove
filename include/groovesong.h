@@ -24,7 +24,7 @@
 #include <QMetaType>
 #include <QVariantMap>
 #include <QUrl>
-class QNetworkReply;
+#include <QNetworkReply>
 
 #include "libgroove_global.h"
 
@@ -103,9 +103,12 @@ signals:
     */
     void streamingStarted(QNetworkReply *httpStream);
 
+    void streamingError(QNetworkReply::NetworkError);
+
 
 private slots:
-    void streamingKeyReady();
+    void streamingKeyReady(const QByteArray &response);
+    void streamingKeyError(QNetworkReply::NetworkError rpcError);
 
 // XXX: protected for tst_GroovePlaylistModel::testOwnershipRef(), would be nice if we could make this private again.
 protected:

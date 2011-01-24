@@ -15,8 +15,6 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <QDebug>
-#include <QNetworkRequest>
 #include <QNetworkReply>
 
 #include <qjson/serializer.h>
@@ -25,6 +23,7 @@
 #include "groovesong.h"
 #include "grooveclient.h"
 #include "grooveclient_p.h"
+#include "grooverequest.h"
 
 GrooveSong::GrooveSong(const QVariantMap &data)
 {
@@ -250,54 +249,32 @@ void GrooveSong::startStreaming()
 {
     qDebug() << Q_FUNC_INFO << "Started streaming for " << songName() << "(id: " << songID() << ")";
 
-    QNetworkRequest request;
-    request.setUrl(QUrl("http://listen.grooveshark.com/more.php?getStreamKeyFromSongIDEx"));
-    request.setHeader(request.ContentTypeHeader,QVariant("application/json"));
-    QVariantMap jlist;
-    QVariantMap header;
-    QVariantMap country;
-    country.insert("CC1","0");
-    country.insert("CC3","0");
-    country.insert("ID","223");
-    country.insert("CC2","0");
-    country.insert("CC4","1073741824");
-    //header.insert("uuid","DEA8E133-2080-F666-4B38-9465187B20A9");
-    header.insert("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
-    header.insert("client","jsqueue");
-    header.insert("clientRevision","20101012.37");
-    header.insert("token", GrooveClientPrivate::instance()->grooveMessageToken("getStreamKeyFromSongIDEx"));
-    header.insertMulti("country",country);
-    jlist.insert("method","getStreamKeyFromSongIDEx");
-    jlist.insertMulti("header",header);
-    QVariantMap param;
-    param.insertMulti("country",country);
-    param.insert("mobile",false);
-    param.insert("songID", songID().toAscii());
-    param.insert("prefetch",false);
-    jlist.insertMulti("parameters",param);
-
-    QJson::Serializer serializer;
-    QNetworkReply *reply = GrooveClient::instance()->networkManager()->post(request, serializer.serialize(jlist));
-    connect(reply, SIGNAL(finished()), SLOT(streamingKeyReady()));
-    // TODO: error handling
+    GrooveRequest *request = new GrooveRequest(GrooveClient::instance(), "http://listen.grooveshark.com/more.php?getStreamKeyFromSongIDEx");
+    request->setMethod("getStreamKeyFromSongIDEx");
+    request->setHeader("client", "jsqueue");
+    request->setHeader("token", GrooveClientPrivate::instance()->grooveMessageToken("getStreamKeyFromSongIDEx"));
+    request->setHeader("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
+    request->setParameter("mobile", false);
+    request->setParameter("songID", songID().toAscii());
+    request->setParameter("prefetch", false);
+    connect(request, SIGNAL(success(QByteArray)), SLOT(streamingKeyReady(QByteArray)));
+    connect(request, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(streamingKeyError(QNetworkReply::NetworkError)));
+    request->post();
 }
 
-void GrooveSong::streamingKeyReady()
+void GrooveSong::streamingKeyReady(const QByteArray &response)
 {
     qDebug() << Q_FUNC_INFO << "Ready for " << songName();
-    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
-    if (GROOVE_VERIFY(reply, "reply with streaming key, without a QNetworkReply")) return;
-
+    qDebug() << Q_FUNC_INFO << "Response: " << response;
     QJson::Parser parser;
     bool ok;
-    QByteArray response = reply->readAll();
     QVariantMap result = parser.parse(response, &ok).toMap();
     qDebug() << Q_FUNC_INFO << response;
     if (GROOVE_VERIFY(ok, "error occured whilst parsing streaming key reply")) return;
     QVariantMap results = result["result"].toMap();
 
     QNetworkRequest req;
-    req.setUrl(QUrl(QString("http://") + results["ip"].toString() + "/stream.php"));
+    req.setUrl(QUrl(GrooveRequest::stream(results["ip"].toString())));
     req.setHeader(req.ContentTypeHeader,QVariant("application/x-www-form-urlencoded"));
 
     qDebug() << Q_FUNC_INFO << "Sending request to " << req.url().toString() << " to start stream";
@@ -306,4 +283,10 @@ void GrooveSong::streamingKeyReady()
                                                                                      QString("streamKey=" +
                                                                                              results["streamKey"].toString()).toAscii());
     emit streamingStarted(streamingReply);
+}
+
+void GrooveSong::streamingKeyError(QNetworkReply::NetworkError rpcError)
+{
+    qDebug() << Q_FUNC_INFO << "Streaming error: " << rpcError;
+    emit streamingError(rpcError);
 }

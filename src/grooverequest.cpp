@@ -12,7 +12,7 @@
 QString const GrooveRequest::API_URL      = "https://cowbell.grooveshark.com/";
 QString const GrooveRequest::ART_BASE_URL = "http://beta.grooveshark.com/static/amazonart/m";
 QString const GrooveRequest::LOGIN_URL    = "http://listen.grooveshark.com/";
-QString const GrooveRequest::REVISION     = "20100831.19";
+QString const GrooveRequest::REVISION     = "20101012.37";
 
 GrooveRequest::GrooveRequest(GrooveClient *client, QString service)
     : m_request(QUrl(service))
@@ -21,6 +21,16 @@ GrooveRequest::GrooveRequest(GrooveClient *client, QString service)
     qDebug() << Q_FUNC_INFO << "Creating request to " << service;
     m_headers.insert("client", "htmlshark");
     m_headers.insert("clientRevision", GrooveRequest::REVISION);
+
+    QVariantMap country;
+    country.insert("CC1","0");
+    country.insert("CC3","0");
+    country.insert("ID","223");
+    country.insert("CC2","0");
+    country.insert("CC4","1073741824");
+
+    m_headers.insertMulti("country", country);
+    m_parameters.insertMulti("country", country);
 }
 
 QVariantMap GrooveRequest::buildRequest() const
