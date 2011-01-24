@@ -1,43 +1,57 @@
 #ifndef GROOVEREQUEST_H
 #define GROOVEREQUEST_H
 
-#include <QObject>
-#include <QUrl>
+// NOTE:
+// this class is not exported API, use it at your own risk
 
+// Qt
+#include <QNetworkRequest>
+#include <QVariantMap>
+
+// Us
 #include "libgroove_global.h"
+#include "grooveclient.h"
 
-class LIBGROOVESHARED_EXPORT GrooveRequest : public QObject
+class GrooveRequest
 {
-    Q_OBJECT
 public:
-    explicit GrooveRequest(QObject *parent = 0);
+    static QString const API_URL;
+    static QString const ART_BASE_URL;
+    static QString const LOGIN_URL;
+    static QString const REVISION;
 
-public slots:
-    void load();
+    static QString more (QString const &method)
+    {
+      return API_URL + "more.php?" + method;
+    }
 
-signals:
-    /*!
-        Signals the request has completed and is ready for disposal.
-    */
-    void finished();
+    static QString service ()
+    {
+      return API_URL + "service.php";
+    }
 
-protected:
-    /*!
-        Called when data \a dataRecieved has been returned from GrooveShark ready for processing.
-    */
-    virtual void loaded(const QString &dataRecieved) = 0;
+    static QString stream (QString const &ip)
+    {
+      return "http://" + ip + "/stream.php";
+    }
 
-    /*!
-        Sets the URL for a given request. Must be called from the constructor of a derived class.
-    */
-    void setUrl(const QUrl &requestUrl);
+    explicit GrooveRequest(GrooveClient *client, QString service);
 
-private slots:
-    void processRequest();
-    void handleError();
+    QVariantMap buildRequest() const;
 
-private:
-    QUrl m_url;
+    void get(QObject const *receiver, char const *slot);
+    void post(QObject const *receiver, char const *slot);
+
+    void setHeader(const QString &header, const QVariant &value);
+    void setParameter(const QString &parameter, const QVariant &value);
+    void setMethod(const QString &method);
+
+    QNetworkRequest m_request;
+    GrooveClient *m_client;
+    QVariantMap m_headers;
+    QVariantMap m_parameters;
+    QString m_method;
 };
+
 
 #endif // GROOVEREQUEST_H

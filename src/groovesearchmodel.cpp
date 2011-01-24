@@ -28,6 +28,7 @@
 #include "groovesong.h"
 #include "grooveclient.h"
 #include "grooveclient_p.h"
+#include "grooverequest.h"
 
 GrooveSearchModel::GrooveSearchModel(QObject *parent) :
     GrooveSongsModel(parent)
@@ -61,25 +62,13 @@ void GrooveSearchModel::searchByHelper(const QString &type, const QString &searc
     qDebug() << Q_FUNC_INFO << "Searching by " << type << " for " << searchTerm;
     clear();
 
-    QNetworkRequest request;
-    request.setUrl(QUrl("http://cowbell.grooveshark.com/more.php?getSearchResults"));
-    request.setHeader(request.ContentTypeHeader,QVariant("application/json"));
-    QVariantMap jlist;
-    QVariantMap header;
-    header.insert("client","htmlshark");
-    header.insert("clientRevision","20100831");
-    header.insert("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
-    header.insert("token", GrooveClientPrivate::instance()->grooveMessageToken("getSearchResults"));
-    jlist.insert("method","getSearchResults");
-    jlist.insertMulti("header", header);
-    QVariantMap param;
-    param.insert("type", type);
-    param.insert("query", searchTerm);
-    jlist.insertMulti("parameters",param);
-
-    QJson::Serializer serializer;
-    QNetworkReply *reply = GrooveClient::networkManager()->post(request, serializer.serialize(jlist));
-    connect(reply, SIGNAL(finished()), SLOT(searchCompleted()));
+    GrooveRequest request(GrooveClient::instance(), GrooveRequest::more("getSearchResults"));
+    request.setMethod("getSearchResults");
+    request.setHeader("session", GrooveClientPrivate::instance()->phpCookie().toUtf8());
+    request.setHeader("token", GrooveClientPrivate::instance()->grooveMessageToken("getSearchResults"));
+    request.setParameter("type", type);
+    request.setParameter("query", searchTerm);
+    request.post(this, SLOT(searchCompleted()));
 }
 
 void GrooveSearchModel::searchCompleted()

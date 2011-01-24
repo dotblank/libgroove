@@ -22,6 +22,7 @@
 
 #include "grooveclient.h"
 #include "grooveclient_p.h"
+#include "grooverequest.h"
 
 GrooveClient::GrooveClient() : d(new GrooveClientPrivate(this))
 {
@@ -32,9 +33,8 @@ GrooveClient::GrooveClient() : d(new GrooveClientPrivate(this))
 void GrooveClient::establishConnection()
 {
     qDebug()  << Q_FUNC_INFO << "Making connection";
-    QNetworkRequest loginRequest(QUrl("http://listen.grooveshark.com"));
-    QNetworkReply *reply = GrooveClient::networkManager()->get(loginRequest);
-    connect(reply, SIGNAL(finished()), d, SLOT(processPHPSessionId()));
+    GrooveRequest request(this, GrooveRequest::LOGIN_URL);
+    request.get(d, SLOT (processPHPSessionId()));
 }
 
 QThreadStorage<QNetworkAccessManager *> networkManagerPtr;

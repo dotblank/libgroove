@@ -24,12 +24,16 @@
 
 // Us
 #include "libgroove_global.h"
+#include "grooveclient.h"
 
 class GrooveClientPrivate : public QObject
 {
 Q_OBJECT
 public:
-    GrooveClientPrivate(QObject *parent) : QObject(parent) { GrooveClientPrivate::m_instance = this; }
+    GrooveClientPrivate(GrooveClient *parent)
+        : QObject(parent)
+        , q(parent)
+    { GrooveClientPrivate::m_instance = this; }
 
     const QString &phpCookie() const;
     const QString &sessionToken() const;
@@ -60,6 +64,7 @@ public slots:
     QString grooveMessageToken(const QString &method);
 
 private:
+    GrooveClient *q;
     QString m_phpCookie;
     QString m_sessionToken;
     static GrooveClientPrivate *m_instance;

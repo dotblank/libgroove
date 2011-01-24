@@ -28,6 +28,7 @@
 
 #include "grooveclient.h"
 #include "grooveclient_p.h"
+#include "grooverequest.h"
 
 GrooveClientPrivate *GrooveClientPrivate::m_instance = NULL;
 
@@ -51,29 +52,10 @@ void GrooveClientPrivate::processPHPSessionId()
 
 void GrooveClientPrivate::fetchSessionToken()
 {
-    qDebug() << Q_FUNC_INFO << "fetching";
-    QNetworkRequest tokenRequest(QUrl("https://cowbell.grooveshark.com/more.php"));
-    tokenRequest.setHeader(tokenRequest.ContentTypeHeader, QVariant("application/json"));
-
-    // headers
-    QVariantMap vmap;
-    vmap.insert("client", "htmlshark");
-    vmap.insert("clientRevision", "20100831");
-
-    // outer map
-    QVariantMap jlist;
-    jlist.insert("method", "getCommunicationToken");
-    jlist.insertMulti("header", vmap);
-
-    // parameters
-    vmap.clear();
-    vmap.insert("secretKey", QCryptographicHash::hash(m_phpCookie.toUtf8(), QCryptographicHash::Md5).toHex());
-    jlist.insertMulti("parameters", vmap);
-
-    // send, hook request
-    QJson::Serializer serializer;
-    QNetworkReply *reply = GrooveClient::networkManager()->post(tokenRequest, serializer.serialize(jlist));
-    connect(reply, SIGNAL(finished()), SLOT(processSessionToken()));
+    GrooveRequest request(q, GrooveRequest::more("getCommunicationToken"));
+    request.setMethod("getCommunicationToken");
+    request.setParameter("secretKey", QCryptographicHash::hash(m_phpCookie.toUtf8(), QCryptographicHash::Md5).toHex());
+    request.post(this, SLOT(processSessionToken()));
 }
 
 void GrooveClientPrivate::processSessionToken()
