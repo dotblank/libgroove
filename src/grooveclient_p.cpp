@@ -95,6 +95,13 @@ void GrooveClientPrivate::processSessionToken()
     GROOVE_VERIFY_OR_DIE(!result["message"].toString().length(), qPrintable(result["message"].toString()));
 
     m_sessionToken = result["result"].toString();
+
+    if (!m_sessionToken.length()) {
+        qDebug() << Q_FUNC_INFO << "Session token empty:";
+        qDebug() << Q_FUNC_INFO << sessionTokenReply;
+        qDebug() << Q_FUNC_INFO << reply->errorString();
+    }
+
     qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
     emit connected();
 }
