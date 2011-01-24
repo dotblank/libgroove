@@ -35,16 +35,9 @@ public:
     virtual QVariant data(const QModelIndex &index, int role) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    /*!
-        Returns the number of tracks in this playlist.
-    */
-    int count();
+    int count() const;
 
 public slots:
-
-    /*!
-        Clears this model of all songs, deleting songs which are not referred to in any other models.
-    */
     void clear();
 
 protected:

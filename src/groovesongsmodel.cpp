@@ -128,12 +128,17 @@ QVariant GrooveSongsModel::headerData(int section, Qt::Orientation orientation, 
 
 /*****/
 
-
-int GrooveSongsModel::count()
+/*!
+    Returns the number of tracks in this playlist.
+*/
+int GrooveSongsModel::count() const
 {
     return rowCount(QModelIndex());
 }
 
+/*!
+    Clears this model of all songs, deleting songs which are not referred to in any other models.
+*/
 void GrooveSongsModel::clear()
 {
     emit beginResetModel();
