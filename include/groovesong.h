@@ -101,7 +101,7 @@ signals:
     /*!
         This signal is emitted when this track first has incoming data ready to be processed as a stream.
     */
-    void streamingStarted(QNetworkReply *httpStream);
+    void streamingStarted(QIODevice *httpStream);
 
     void streamingError(QNetworkReply::NetworkError);
 
