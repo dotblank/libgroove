@@ -22,6 +22,8 @@
 GrooveStream::GrooveStream(QFile *cacheFile)
     : d(new Private(this))
 {
+    GROOVE_VERIFY_OR_DIE(cacheFile, "no cacheFile pointer provided");
+
     d->setCacheFile(cacheFile);
     open(QIODevice::ReadOnly);
 }
@@ -29,6 +31,8 @@ GrooveStream::GrooveStream(QFile *cacheFile)
 GrooveStream::GrooveStream(QNetworkReply *reply, const QString &cachePath)
     : d(new Private(this))
 {
+    GROOVE_VERIFY_OR_DIE(reply, "no reply pointer provided");
+
     d->setCachePath(cachePath);
     d->setNetworkReply(reply);
     open(QIODevice::ReadOnly);
@@ -36,6 +40,8 @@ GrooveStream::GrooveStream(QNetworkReply *reply, const QString &cachePath)
 
 qint64 GrooveStream::readData(char *data, qint64 maxlen)
 {
+    if (GROOVE_VERIFY(data, "data pointer is NULL")) return 0;
+
     return d->readData(data, maxlen);
 }
 

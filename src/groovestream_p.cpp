@@ -69,6 +69,8 @@ void GrooveStream::Private::processFinished()
 
 void GrooveStream::Private::setCacheFile(QFile *file)
 {
+    if (GROOVE_VERIFY(file, "pointer is NULL")) return;
+
     file->setParent(this);
     cacheFile = file;
     QTimer::singleShot(0, this, SLOT(sendFileSignals())); // not instant to give caller a chance to hook signals
@@ -77,6 +79,8 @@ void GrooveStream::Private::setCacheFile(QFile *file)
 
 void GrooveStream::Private::setNetworkReply(QNetworkReply *reply)
 {
+    if (GROOVE_VERIFY(reply, "pointer is NULL")) return;
+
     reply->setParent(this);
     networkReply = reply;
     networkDataBuffer = new QBuffer(&networkData, this);
@@ -90,6 +94,8 @@ void GrooveStream::Private::setNetworkReply(QNetworkReply *reply)
 
 qint64 GrooveStream::Private::readData(char *data, qint64 maxlen)
 {
+    if (GROOVE_VERIFY(data, "pointer is NULL")) return 0;
+
     qint64 bytesRead;
     if (cacheFile) {
         bytesRead = cacheFile->read(data, maxlen);
