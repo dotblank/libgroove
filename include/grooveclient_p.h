@@ -54,7 +54,7 @@ public slots:
     /*!
         Process the second stage of the Grooveshark login process.
     */
-    void processSessionToken(const QByteArray &sessionTokenReply);
+    void processSessionToken(const QVariantMap &result);
     void errorFetchingSessionToken(QNetworkReply::NetworkError);
 
     /*!

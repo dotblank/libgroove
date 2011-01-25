@@ -34,7 +34,7 @@ void GrooveClient::establishConnection()
 {
     qDebug()  << Q_FUNC_INFO << "Making connection";
     GrooveRequest *request = new GrooveRequest(this, GrooveRequest::LOGIN_URL);
-    connect(request, SIGNAL(success(QByteArray)), d, SLOT(processPHPSessionId()));
+    connect(request, SIGNAL(success(QVariantMap)), d, SLOT(processPHPSessionId()));
     connect(request, SIGNAL(error(QNetworkReply::NetworkError)), d, SLOT(errorFetchingSessionId(QNetworkReply::NetworkError)));
     request->get();
 }

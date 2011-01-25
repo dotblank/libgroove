@@ -21,9 +21,6 @@
 #include <QCryptographicHash>
 #include <QDebug>
 
-#include <qjson/serializer.h> // qjson
-#include <qjson/parser.h> // qjson
-
 #include "grooveclient.h"
 #include "grooveclient_p.h"
 #include "grooverequest.h"
@@ -59,26 +56,20 @@ void GrooveClientPrivate::fetchSessionToken()
     GrooveRequest *request = new GrooveRequest(q, GrooveRequest::more("getCommunicationToken"));
     request->setMethod("getCommunicationToken");
     request->setParameter("secretKey", QCryptographicHash::hash(m_phpCookie.toUtf8(), QCryptographicHash::Md5).toHex());
-    connect(request, SIGNAL(success(QByteArray)), SLOT(processSessionToken(QByteArray)));
+    connect(request, SIGNAL(success(QVariantMap)), SLOT(processSessionToken(QVariantMap)));
     connect(request, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(errorFetchingSessionToken(QNetworkReply::NetworkError)));
     request->post();
 }
 
-void GrooveClientPrivate::processSessionToken(const QByteArray &sessionTokenReply)
+void GrooveClientPrivate::processSessionToken(const QVariantMap &result)
 {
-    bool ok;
-    QJson::Parser parser;
-    QVariantMap result = parser.parse(sessionTokenReply, &ok).toMap();
-
-    GROOVE_VERIFY(ok, "couldn't parse reply to session token request");
     GROOVE_VERIFY(result["message"].toString().length(), qPrintable(result["message"].toString()));
 
     m_sessionToken = result["result"].toString();
     qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
 
-    if (!ok || !m_sessionToken.length()) {
-        qDebug() << Q_FUNC_INFO << "Session token request failed:";
-        qDebug() << Q_FUNC_INFO << sessionTokenReply;
+    if (result.isEmpty() || !m_sessionToken.length()) {
+        qDebug() << Q_FUNC_INFO << "Session token request failed!";
         emit error(Groove::SessionError);
         return;
     }

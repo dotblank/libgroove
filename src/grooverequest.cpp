@@ -72,7 +72,14 @@ void GrooveRequest::onFinished()
 
     if (!reply->error()) {
         QByteArray response = reply->readAll();
-        emit success(response);
+        bool ok;
+        QJson::Parser parser;
+        QVariantMap result = parser.parse(response, &ok).toMap();
+
+        if (!ok)
+            qWarning() << Q_FUNC_INFO << "Couldn't parse result of response: " << response.left(100);
+
+        emit success(result);
     } else {
         qDebug() << Q_FUNC_INFO << "Not emitting for failed RPC";
         return;

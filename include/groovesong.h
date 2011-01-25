@@ -107,7 +107,7 @@ signals:
 
 private slots:
     // TODO: these should be moved *OUT* of here.
-    void streamingKeyReady(const QByteArray &response);
+    void streamingKeyReady(const QVariantMap &result);
     void streamingKeyError(QNetworkReply::NetworkError rpcError);
 
 // XXX: protected for tst_GroovePlaylistModel::testOwnershipRef(), would be nice if we could make this private again.

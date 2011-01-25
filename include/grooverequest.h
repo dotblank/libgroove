@@ -53,9 +53,9 @@ public:
 signals:
     /*!
       Emitted when a request has succeeded, passes all of the \a data
-      read from the RPC request.
+      read from the RPC request, parsed from JSON.
     */
-    void success(const QByteArray &data);
+    void success(const QVariantMap &data);
 
     /*!
       Emitted when an RPC request fails, along with the \a errorCode

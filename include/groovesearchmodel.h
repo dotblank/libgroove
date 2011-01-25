@@ -56,7 +56,7 @@ private slots:
     /*!
         Invoked when a currently running search completes.
     */
-    void searchCompleted(const QByteArray &response);
+    void searchCompleted(const QVariantMap &result);
 
     void searchError(QNetworkReply::NetworkError rpcError);
 };

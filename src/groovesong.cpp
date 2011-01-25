@@ -20,10 +20,6 @@
 #include <QDesktopServices>
 #include <QDir>
 
-// QJson
-#include <qjson/serializer.h>
-#include <qjson/parser.h>
-
 // Us
 #include "groovesong.h"
 #include "grooveclient.h"
@@ -281,20 +277,20 @@ void GrooveSong::startStreaming()
     request->setParameter("mobile", false);
     request->setParameter("songID", songID().toAscii());
     request->setParameter("prefetch", false);
-    connect(request, SIGNAL(success(QByteArray)), SLOT(streamingKeyReady(QByteArray)));
+    connect(request, SIGNAL(success(QVariantMap)), SLOT(streamingKeyReady(QVariantMap)));
     connect(request, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(streamingKeyError(QNetworkReply::NetworkError)));
     request->post();
 }
 
-void GrooveSong::streamingKeyReady(const QByteArray &response)
+void GrooveSong::streamingKeyReady(const QVariantMap &result)
 {
     qDebug() << Q_FUNC_INFO << "Ready for " << songName();
-    qDebug() << Q_FUNC_INFO << "Response: " << response;
-    QJson::Parser parser;
-    bool ok;
-    QVariantMap result = parser.parse(response, &ok).toMap();
-    qDebug() << Q_FUNC_INFO << response;
-    if (GROOVE_VERIFY(ok, "error occured whilst parsing streaming key reply")) return;
+
+    if (result.isEmpty()) {
+        qWarning() << Q_FUNC_INFO << "error occured whilst parsing streaming key reply";
+        return;
+    }
+
     QVariantMap results = result["result"].toMap();
 
     QNetworkRequest req;
