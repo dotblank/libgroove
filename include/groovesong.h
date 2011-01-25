@@ -105,8 +105,8 @@ signals:
 
     void streamingError(QNetworkReply::NetworkError);
 
-
 private slots:
+    // TODO: these should be moved *OUT* of here.
     void streamingKeyReady(const QByteArray &response);
     void streamingKeyError(QNetworkReply::NetworkError rpcError);
 

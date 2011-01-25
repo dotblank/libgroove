@@ -15,15 +15,21 @@
  * Inc., 51 Franklin St - Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// Qt
 #include <QNetworkReply>
+#include <QDesktopServices>
+#include <QDir>
 
+// QJson
 #include <qjson/serializer.h>
 #include <qjson/parser.h>
 
+// Us
 #include "groovesong.h"
 #include "grooveclient.h"
 #include "grooveclient_p.h"
 #include "grooverequest.h"
+#include "groovestream.h"
 
 GrooveSong::GrooveSong(const QVariantMap &data)
 {
@@ -249,6 +255,24 @@ void GrooveSong::startStreaming()
 {
     qDebug() << Q_FUNC_INFO << "Started streaming for " << songName() << "(id: " << songID() << ")";
 
+    // see if we can bypass streaming altogether and fulfil the request from the cache
+    QDir dir;
+    QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation) + "/libgroove/cache/tracks/";
+    if (!dir.mkpath(cachePath)) {
+        qWarning() << Q_FUNC_INFO << "Couldn't create cache; performance will degrade due to needing to stream music";
+    } else {
+        // look for the song
+        QFile *cacheFile = new QFile(cachePath + songID());
+        if (!cacheFile->open(QIODevice::ReadOnly) || !cacheFile->size()) {
+            qDebug() << "Cache miss for track";
+        } else {
+            qDebug() << "Cache hit for track";
+            GrooveStream *stream = new GrooveStream(cacheFile);
+            emit streamingStarted(stream);
+            return;
+        }
+    }
+
     GrooveRequest *request = new GrooveRequest(GrooveClient::instance(), "http://listen.grooveshark.com/more.php?getStreamKeyFromSongIDEx");
     request->setMethod("getStreamKeyFromSongIDEx");
     request->setHeader("client", "jsqueue");
@@ -282,7 +306,10 @@ void GrooveSong::streamingKeyReady(const QByteArray &response)
     QNetworkReply *streamingReply = GrooveClient::instance()->networkManager()->post(req,
                                                                                      QString("streamKey=" +
                                                                                              results["streamKey"].toString()).toAscii());
-    emit streamingStarted(streamingReply);
+
+    QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation) + "/libgroove/cache/tracks/" + songID();
+    GrooveStream *stream = new GrooveStream(streamingReply, cachePath);
+    emit streamingStarted(stream);
 }
 
 void GrooveSong::streamingKeyError(QNetworkReply::NetworkError rpcError)

@@ -23,7 +23,9 @@ SOURCES += grooveclient.cpp \
     grooveclient_p.cpp \
     grooveplaylistmodel.cpp \
     groovesongsmodel.cpp \
-    grooverequest.cpp
+    grooverequest.cpp \
+    groovestream.cpp \
+    groovestream_p.cpp
 
 HEADERS += grooveclient.h\
         libgroove_global.h \
@@ -32,7 +34,9 @@ HEADERS += grooveclient.h\
     grooveclient_p.h \
     grooveplaylistmodel.h \
     groovesongsmodel.h \
-    grooverequest.h
+    grooverequest.h \
+    groovestream.h \
+    groovestream_p.h
 
 headers.files = $$HEADERS
 headers.path = /usr/include
