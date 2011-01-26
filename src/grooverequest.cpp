@@ -76,8 +76,8 @@ void GrooveRequest::onFinished()
         QJson::Parser parser;
         QVariantMap result = parser.parse(response, &ok).toMap();
 
-        if (!ok)
-            qWarning() << Q_FUNC_INFO << "Couldn't parse result of response: " << response.left(100);
+        if (!ok || result.isEmpty())
+            qWarning() << Q_FUNC_INFO << "Couldn't parse response or response was empty: " << response;
 
         emit success(result);
     } else {
