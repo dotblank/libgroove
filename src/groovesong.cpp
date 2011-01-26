@@ -105,7 +105,6 @@ int GrooveSong::trackNum() const
 
 QUrl GrooveSong::coverArtUrl() const
 {
-    qDebug() << Q_FUNC_INFO << d->m_data["CoverArtFilename"];
     if (!d->m_data["CoverArtFilename"].toByteArray().length())
         return QUrl("http://static.a.gs-cdn.net/webincludes/images/default/album_100.png");
 
