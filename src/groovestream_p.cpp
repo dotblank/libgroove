@@ -59,6 +59,11 @@ void GrooveStream::Private::processFinished()
     QIODevice *httpStream = qobject_cast<QIODevice *>(sender());
     if (GROOVE_VERIFY(httpStream, "no stream pointer from sender")) return;
 
+    if (networkData.length() == 0) {
+        qDebug() << Q_FUNC_INFO << "Ignoring 0 byte cache for " << m_cachePath;
+        return;
+    }
+
     QFile cacheFile(m_cachePath);
     cacheFile.open(QIODevice::WriteOnly);
     cacheFile.write(networkData);
