@@ -63,7 +63,7 @@ void GrooveClientPrivate::fetchSessionToken()
 
 void GrooveClientPrivate::processSessionToken(const QVariantMap &result)
 {
-    GROOVE_VERIFY(result["message"].toString().length(), qPrintable(result["message"].toString()));
+    GROOVE_VERIFY(result["result"].toString().length(), qPrintable(result["result"].toString()));
 
     m_sessionToken = result["result"].toString();
     qDebug() << Q_FUNC_INFO << "Got session token: " << m_sessionToken;
