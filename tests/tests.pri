@@ -1,3 +1,7 @@
+# QJson library
+CONFIG += link_pkgconfig
+PKGCONFIG += QJson
+
 QT += testlib network
 TEMPLATE = app
 DEPENDPATH += . ../../include/
