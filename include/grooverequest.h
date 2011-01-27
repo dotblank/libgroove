@@ -40,6 +40,8 @@ public:
     explicit GrooveRequest(GrooveClient *client, QString service);
 
     QVariantMap buildRequest() const;
+    QString generateCacheKey() const;
+    void processData(const QByteArray &response);
 
     void get();
     void post();

@@ -1,3 +1,7 @@
+#include <QCryptographicHash>
+#include <QDesktopServices>
+#include <QDir>
+#include <QFile>
 #include <QObject>
 #include <QNetworkReply>
 
@@ -42,8 +46,44 @@ QVariantMap GrooveRequest::buildRequest() const
     return jlist;
 }
 
+QString GrooveRequest::generateCacheKey() const
+{
+    QVariantMap request = buildRequest();
+    bool hasKey = false;
+
+    QCryptographicHash crypter(QCryptographicHash::Sha1);
+    if (m_method == QLatin1String("getSearchResults")) {
+        // hash is:
+        // parameters/type
+        // parameters/query
+        crypter.addData(request["parameters"].toHash()["type"].toByteArray());
+        crypter.addData(request["parameters"].toHash()["query"].toByteArray());
+        qDebug() << Q_FUNC_INFO << "Search cache key: " << crypter.result().toHex();
+        hasKey = true;
+    }
+
+    if (!hasKey)
+        return QString();
+
+    return crypter.result().toHex();
+}
+
 void GrooveRequest::post()
 {
+    QString cacheKey = generateCacheKey();
+
+    if (cacheKey.length()) {
+        qDebug() << Q_FUNC_INFO << "Possibly cached request";
+        QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation) + "/libgroove/cache/api/" + cacheKey;
+        QFile cacheFile(cachePath);
+        if (cacheFile.open(QIODevice::ReadOnly)) {
+            qDebug() << Q_FUNC_INFO << "Definitely cached request";
+            QByteArray response = cacheFile.readAll();
+            processData(response);
+            return;
+        }
+    }
+
     m_request.setHeader(m_request.ContentTypeHeader, "application/json");
 
     QJson::Serializer serializer;
@@ -72,14 +112,27 @@ void GrooveRequest::onFinished()
 
     if (!reply->error()) {
         QByteArray response = reply->readAll();
-        bool ok;
-        QJson::Parser parser;
-        QVariantMap result = parser.parse(response, &ok).toMap();
 
-        if (!ok || result.isEmpty())
-            qWarning() << Q_FUNC_INFO << "Couldn't parse response or response was empty: " << response;
+        QString cacheKey = generateCacheKey();
 
-        emit success(result);
+        // TODO: codeshare with GrooveStream so we don't reinvent caching like this
+        if (cacheKey.length()) {
+            qDebug() << Q_FUNC_INFO << "Cached a " << response.size() << " byte response with cache key " << cacheKey;
+            QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation) + "/libgroove/cache/api/";
+            QDir dir;
+            if (!dir.mkpath(cachePath)) {
+            } else {
+                cachePath += cacheKey;
+                QFile cacheFile(cachePath);
+                if (!cacheFile.open(QIODevice::WriteOnly)) {
+                    qDebug() << Q_FUNC_INFO << "Cannot open cache file! " << cacheFile.errorString();
+                } else {
+                    cacheFile.write(response);
+                }
+            }
+        }
+
+        processData(response);
     } else {
         qDebug() << Q_FUNC_INFO << "Not emitting for failed RPC";
         return;
@@ -87,6 +140,19 @@ void GrooveRequest::onFinished()
 
     qDebug() << Q_FUNC_INFO << "Destroying response";
     deleteLater();
+}
+
+void GrooveRequest::processData(const QByteArray &response)
+{
+    bool ok;
+    QJson::Parser parser;
+    QVariantMap result = parser.parse(response, &ok).toMap();
+
+    if (!ok || result.isEmpty())
+        qWarning() << Q_FUNC_INFO << "Couldn't parse response or response was empty: " << response.left(100);
+
+    qDebug() << Q_FUNC_INFO << "Success!";
+    emit success(result);
 }
 
 void GrooveRequest::setHeader(const QString &header, const QVariant &value)
