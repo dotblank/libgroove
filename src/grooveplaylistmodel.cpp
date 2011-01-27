@@ -91,8 +91,15 @@ GrooveSong *GroovePlaylistModel::previous()
     return m_songs.at(m_currentTrack);
 }
 
-int GroovePlaylistModel::currentTrack()
+int GroovePlaylistModel::currentTrackIndex()
 {
     return m_currentTrack;
 }
 
+GrooveSong *GroovePlaylistModel::currentTrack()
+{
+    if (m_songs.isEmpty() || m_currentTrack < 0 || m_currentTrack >=  m_songs.count())
+        return 0;
+
+    return m_songs.at(m_currentTrack);
+}

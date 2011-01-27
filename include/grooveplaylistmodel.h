@@ -63,7 +63,12 @@ public slots:
     /*!
         Returns the index of the currently playing track.
     */
-    int currentTrack();
+    int currentTrackIndex();
+
+    /*!
+        Returns the currently playing track
+    */
+    GrooveSong *currentTrack();
 
 private:
     int m_currentTrack;
