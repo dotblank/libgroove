@@ -117,3 +117,11 @@ void GrooveStream::Private::setCachePath(const QString &cachePath)
 {
     m_cachePath = cachePath;
 }
+
+qint64 GrooveStream::Private::size() const
+{
+    if (cacheFile)
+        return cacheFile->size();
+    else
+        return networkDataBuffer->size();
+}

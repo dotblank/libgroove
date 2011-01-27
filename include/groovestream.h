@@ -32,6 +32,9 @@ class GrooveStream : public QIODevice
     GrooveStream(QFile *cacheFile);
     GrooveStream(QNetworkReply *reply, const QString &cachePath);
 
+public:
+    qint64 size() const;
+
 protected:
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);

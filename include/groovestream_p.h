@@ -37,6 +37,7 @@ public:
     void setCachePath(const QString &cachePath);
 
     qint64 readData(char *data, qint64 maxlen);
+    qint64 size() const;
 
 public slots:
     void sendFileSignals();

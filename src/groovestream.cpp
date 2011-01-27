@@ -52,3 +52,8 @@ qint64 GrooveStream::writeData(const char *data, qint64 len)
     Q_UNUSED(len)
     return -1;
 }
+
+qint64 GrooveStream::size() const
+{
+    return d->size();
+}
