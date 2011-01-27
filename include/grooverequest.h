@@ -41,7 +41,7 @@ public:
 
     QVariantMap buildRequest() const;
     QString generateCacheKey() const;
-    void processData(const QByteArray &response);
+    bool processData(const QByteArray &response);
 
     void get();
     void post();

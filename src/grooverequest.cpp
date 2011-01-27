@@ -113,26 +113,29 @@ void GrooveRequest::onFinished()
     if (!reply->error()) {
         QByteArray response = reply->readAll();
 
-        QString cacheKey = generateCacheKey();
+        bool success = processData(response);
 
-        // TODO: codeshare with GrooveStream so we don't reinvent caching like this
-        if (cacheKey.length()) {
-            qDebug() << Q_FUNC_INFO << "Cached a " << response.size() << " byte response with cache key " << cacheKey;
-            QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation) + "/libgroove/cache/api/";
-            QDir dir;
-            if (!dir.mkpath(cachePath)) {
-            } else {
-                cachePath += cacheKey;
-                QFile cacheFile(cachePath);
-                if (!cacheFile.open(QIODevice::WriteOnly)) {
-                    qDebug() << Q_FUNC_INFO << "Cannot open cache file! " << cacheFile.errorString();
+        // don't cache if there was a fault code
+        if (success) {
+            QString cacheKey = generateCacheKey();
+
+            // TODO: codeshare with GrooveStream so we don't reinvent caching like this
+            if (cacheKey.length()) {
+                qDebug() << Q_FUNC_INFO << "Cached a " << response.size() << " byte response with cache key " << cacheKey;
+                QString cachePath = QDesktopServices::storageLocation(QDesktopServices::CacheLocation) + "/libgroove/cache/api/";
+                QDir dir;
+                if (!dir.mkpath(cachePath)) {
                 } else {
-                    cacheFile.write(response);
+                    cachePath += cacheKey;
+                    QFile cacheFile(cachePath);
+                    if (!cacheFile.open(QIODevice::WriteOnly)) {
+                        qDebug() << Q_FUNC_INFO << "Cannot open cache file! " << cacheFile.errorString();
+                    } else {
+                        cacheFile.write(response);
+                    }
                 }
             }
         }
-
-        processData(response);
     } else {
         qDebug() << Q_FUNC_INFO << "Not emitting for failed RPC";
         return;
@@ -142,7 +145,7 @@ void GrooveRequest::onFinished()
     deleteLater();
 }
 
-void GrooveRequest::processData(const QByteArray &response)
+bool GrooveRequest::processData(const QByteArray &response)
 {
     bool ok;
     QJson::Parser parser;
@@ -151,8 +154,15 @@ void GrooveRequest::processData(const QByteArray &response)
     if (!ok || result.isEmpty())
         qWarning() << Q_FUNC_INFO << "Couldn't parse response or response was empty: " << response.left(100);
 
+    //{"header":{"session":"b19863494deffd83d2795768e68ef2b6"},"fault":{"code":256,"message":"invalid token"}}
+    if (!result["fault"].toMap().isEmpty()) {
+        qDebug() << Q_FUNC_INFO << "Detected a fault returned: " << response;
+        return false;
+    }
+
     qDebug() << Q_FUNC_INFO << "Success!";
     emit success(result);
+    return true;
 }
 
 void GrooveRequest::setHeader(const QString &header, const QVariant &value)
