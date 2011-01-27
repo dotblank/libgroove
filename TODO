@@ -1,42 +1,55 @@
+legend:
+[x] - done
+[ ] - not done, unowned
+[R] - Robin's task
+
 v0.1 "pluck a duck"
 -------------------
 
-- cache GrooveRequest to not hit up grooveshark where possible (e.g. searches)
-  -> we can also extend this to *somewhat* work offline maybe?
-  GrooveStream will make this reasonably easy
-- Change GrooveSong::streamingStarted() signal to pass the GrooveSong that is
-  streaming?
-- GroovePlaylistModel::setCurrentTrack(int)? const QModelIndex&?
-  not QModelIndex, otherwise using from QML is impossible, sigh
-- Error handling
-  GrooveRequest makes this a lot easier, but we still need to make sure we
-  handle this everywhere:
-  - On connection
-  - On search request
-  - On stream key request
-  - Let client handle streaming errors
-    (but make sure GrooveStream exposes them!)
-  - "invalid token" error
-    we can handle this inside GrooveRequest directly, by checking for it after
-    parsing JSON, restarting the connection procecss, and resubmitting requests
-    after a successful connection
+[x] cache GrooveRequest to not hit up grooveshark where possible (e.g. searches)
+    [R] revise GrooveRequest caching implementation to codeshare with
+        GrooveStream,if possible
+[ ] Change GrooveSong::streamingStarted() signal to pass the GrooveSong that is streaming?
+[ ] GroovePlaylistModel::setCurrentTrack(int)? const QModelIndex&?
+    (not QModelIndex, otherwise using from QML is impossible, sigh)
+    we may want to just deprecated/remove GroovePlaylistModel totally, it's kind of an
+    odd thing to have outside of the player.
+[ ] Error handling
+    GrooveRequest makes this a lot easier, but we still need to make sure we handle this:
+    [ ] On connection
+    [ ] On search request
+    [ ] On stream key request
+    [ ] Let client handle streaming errors
+        (but make sure GrooveStream exposes them!)
+    [ ] "invalid token" error
+        we can handle this inside GrooveRequest directly, by checking for it after
+        parsing JSON, restarting the connection procecss, and resubmitting requests
+        after a successful connection
 
 v0.2 "make a drake"
 -------------------
 
-- Integrate API for prefetch mode into GrooveSong somehow (startStreaming()
-  plus a new startPrefetch()?) - seems clumsy; perhaps playlistmodel could
-  handle prefetch somehow? that way the request from the client would use the
-  cached track
-- Unit testing for GrooveSearchModel
-- Unit testing for GrooveSongsModel
+[ ] Integrate API for prefetch mode into GrooveSong somehow (startStreaming()
+    plus a new startPrefetch()?) - seems clumsy; perhaps playlistmodel could
+    handle prefetch somehow? that way the request from the client would use the
+    cached track
+[ ] Unit testing for GrooveSearchModel
+[ ] Unit testing for GrooveSongsModel
 
 v0.3 "sing a ballad for a mallard"
 ----------------------------------
 
-- Integrate radio mode into GroovePlaylistMode?
-  GPM::setRadioMode(true);
-  ::next() automatically initiates a radio request for next track if there are 1 (or 2?) tracks remaining
-- Review types of data in GrooveSong
-- API documentation, GrooveSong and everywhere
+[ ] Integrate radio mode into GroovePlaylistMode?
+    GPM::setRadioMode(true);
+    ::next() automatically initiates a radio request for next track if there are 1 (or 2?) tracks remaining
+[ ] Review types of data in GrooveSong
+[ ] API documentation, GrooveSong and everywhere
 
+future
+------
+
+[ ] offline mode
+[ ] mark track as favourite
+[ ] other RPC calls
+[ ] expire MP3 cache, set limits per-platform, e.g. lower on N900 (user settable?)
+[ ] expire API cache on 'sensible' intervals (a week for searches, etc).
