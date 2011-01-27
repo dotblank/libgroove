@@ -56,8 +56,8 @@ QString GrooveRequest::generateCacheKey() const
         // hash is:
         // parameters/type
         // parameters/query
-        crypter.addData(request["parameters"].toHash()["type"].toByteArray());
-        crypter.addData(request["parameters"].toHash()["query"].toByteArray());
+        crypter.addData(request["parameters"].toMap()["type"].toByteArray());
+        crypter.addData(request["parameters"].toMap()["query"].toByteArray());
         qDebug() << Q_FUNC_INFO << "Search cache key: " << crypter.result().toHex();
         hasKey = true;
     }
