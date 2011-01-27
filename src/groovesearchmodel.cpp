@@ -80,11 +80,13 @@ void GrooveSearchModel::searchCompleted(const QVariantMap &result)
     }
 
     QList<GrooveSong *> newSongList;
-    foreach (const QVariant &song, result["result"].toList()) {
+    foreach (const QVariant &song, result["result"].toMap()["Songs"].toList()) {
         QVariantMap songData = song.toMap();
 
         newSongList.append(new GrooveSong(songData));
     }
+
+    qDebug() << Q_FUNC_INFO << "Search found " << newSongList.count() << " songs";
 
     if (!newSongList.count())
         return;
@@ -93,8 +95,6 @@ void GrooveSearchModel::searchCompleted(const QVariantMap &result)
     clear();
     m_songs = newSongList;
     endInsertRows();
-
-    qDebug() << Q_FUNC_INFO << "Search found " << m_songs.count() << " songs";
 }
 
 void GrooveSearchModel::searchError(QNetworkReply::NetworkError rpcError)
