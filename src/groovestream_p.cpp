@@ -100,14 +100,19 @@ void GrooveStream::Private::setNetworkReply(QNetworkReply *reply)
 qint64 GrooveStream::Private::readData(char *data, qint64 maxlen)
 {
     if (GROOVE_VERIFY(data, "pointer is NULL")) return 0;
+    static int calls = 0; // just to make debug a tiny bit less noisy, not used for any real purpose
 
     qint64 bytesRead;
     if (cacheFile) {
         bytesRead = cacheFile->read(data, maxlen);
-        qDebug() << Q_FUNC_INFO << "Trying to read " << maxlen << " from file " << cacheFile->fileName() << "; read " << bytesRead;
+
+        if (calls++ % 100 == 0)
+            qDebug() << Q_FUNC_INFO << "Trying to read " << maxlen << " from file " << cacheFile->fileName() << "; read " << bytesRead;
     } else {
         bytesRead = networkDataBuffer->read(data, maxlen);
-        qDebug() << Q_FUNC_INFO << "Trying to read " << maxlen << " from network stream " << networkReply->url() << "; read " << bytesRead;
+
+        if (calls++ % 100 == 0)
+            qDebug() << Q_FUNC_INFO << "Trying to read " << maxlen << " from network stream " << networkReply->url() << "; read " << bytesRead;
     }
 
     return bytesRead;
