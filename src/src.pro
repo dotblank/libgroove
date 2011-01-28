@@ -11,9 +11,7 @@ TEMPLATE = lib
 INCLUDEPATH = ../include/
 DEPENDPATH = ../include/
 
-# QJson library
-CONFIG += link_pkgconfig
-PKGCONFIG += QJson
+include(../libqjson.pri)
 
 DEFINES += LIBGROOVE_LIBRARY
 

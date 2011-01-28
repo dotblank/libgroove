@@ -1,6 +1,4 @@
-# QJson library
-CONFIG += link_pkgconfig
-PKGCONFIG += QJson
+include(../libqjson.pri)
 
 QT += testlib network
 TEMPLATE = app

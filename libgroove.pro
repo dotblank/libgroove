@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = src tests
+SUBDIRS = src
+!maemo5:SUBDIRS += tests
