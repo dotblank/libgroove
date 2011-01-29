@@ -56,8 +56,11 @@ void GrooveSearchModel::searchByHelper(const QString &type, const QString &searc
     qDebug() << Q_FUNC_INFO << "Searching by " << type << " for " << searchTerm;
     clear();
 
+    emit searchStarted();
+
     if (searchTerm.trimmed().isEmpty()) {
         qDebug() << Q_FUNC_INFO << "Ignoring empty search";
+        emit searchCompleted(0);
         return;
     }
 
@@ -67,12 +70,12 @@ void GrooveSearchModel::searchByHelper(const QString &type, const QString &searc
     request->setHeader("token", GrooveClientPrivate::instance()->grooveMessageToken("getSearchResults"));
     request->setParameter("type", type);
     request->setParameter("query", searchTerm);
-    connect(request, SIGNAL(success(QVariantMap)), SLOT(searchCompleted(QVariantMap)));
+    connect(request, SIGNAL(success(QVariantMap)), SLOT(processSearchCompleted(QVariantMap)));
     connect(request, SIGNAL(error(QNetworkReply::NetworkError)), SLOT(searchError(QNetworkReply::NetworkError)));
     request->post();
 }
 
-void GrooveSearchModel::searchCompleted(const QVariantMap &result)
+void GrooveSearchModel::processSearchCompleted(const QVariantMap &result)
 {
     if (result.isEmpty()) {
         qWarning() << Q_FUNC_INFO << "Error occured whilst parsing search results";
@@ -87,6 +90,7 @@ void GrooveSearchModel::searchCompleted(const QVariantMap &result)
     }
 
     qDebug() << Q_FUNC_INFO << "Search found " << newSongList.count() << " songs";
+    emit searchCompleted(newSongList.count());
 
     if (!newSongList.count())
         return;

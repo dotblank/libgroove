@@ -45,6 +45,10 @@ public slots:
     void searchBySong(const QString &song);
     void searchByAlbum(const QString &album); // XXX: should this really be here? causes problems due to different fields returned?
 
+signals:
+    void searchCompleted(int numOfResults);
+    void searchStarted();
+
 private:
     /*!
         Performs a search of the given \a type for a \a searchTerm on this model instance.
@@ -56,7 +60,7 @@ private slots:
     /*!
         Invoked when a currently running search completes.
     */
-    void searchCompleted(const QVariantMap &result);
+    void processSearchCompleted(const QVariantMap &result);
 
     void searchError(QNetworkReply::NetworkError rpcError);
 };
