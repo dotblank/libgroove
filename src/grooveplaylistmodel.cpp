@@ -96,6 +96,14 @@ int GroovePlaylistModel::currentTrackIndex()
     return m_currentTrack;
 }
 
+void GroovePlaylistModel::setCurrentTrackIndex(int trackIndex)
+{
+    if (GROOVE_VERIFY(trackIndex >= -1, "trackIndex too low")) return;
+    if (GROOVE_VERIFY(trackIndex < m_songs.count(), "trackIndex too high")) return;
+
+    m_currentTrack = trackIndex;
+}
+
 GrooveSong *GroovePlaylistModel::currentTrack()
 {
     if (m_songs.isEmpty() || m_currentTrack < 0 || m_currentTrack >=  m_songs.count())

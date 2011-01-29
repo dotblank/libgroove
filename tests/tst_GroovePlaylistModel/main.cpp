@@ -174,7 +174,30 @@ void tst_GroovePlaylistModel::previous()
 
 void tst_GroovePlaylistModel::currentTrack()
 {
-    // covered by ::previous()
+    GroovePlaylistModel gpm;
+
+    // sanity check
+    QVERIFY(gpm.currentTrackIndex() == -1);
+    QVERIFY(gpm.currentTrack() == 0);
+
+    // append(1), verify
+    GrooveSong *g1 = new GrooveSong(QVariantMap());
+    gpm.append(g1);
+    gpm.setCurrentTrackIndex(0);
+    QCOMPARE(gpm.currentTrackIndex(), 0);
+    QCOMPARE(gpm.currentTrack(), g1);
+
+    // append(2), verify
+    GrooveSong *g2 = new GrooveSong(QVariantMap());
+    gpm.append(g2);
+    gpm.setCurrentTrackIndex(1);
+    QCOMPARE(gpm.currentTrackIndex(), 1);
+    QCOMPARE(gpm.currentTrack(), g2);
+
+    // we should be at the end of the list now, go back to g1
+    gpm.setCurrentTrackIndex(0);
+    QCOMPARE(gpm.currentTrackIndex(), 0);
+    QCOMPARE(gpm.currentTrack(), g1);
 }
 
 

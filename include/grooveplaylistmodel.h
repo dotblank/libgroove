@@ -66,6 +66,11 @@ public slots:
     int currentTrackIndex();
 
     /*!
+        Sets the index of the currently playing track to \a trackIndex
+    */
+    void setCurrentTrackIndex(int trackIndex);
+
+    /*!
         Returns the currently playing track
     */
     GrooveSong *currentTrack();
